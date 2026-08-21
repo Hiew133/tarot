@@ -1,0 +1,9 @@
+Anh mat 22 la An Chinh: bo bai Rider-Waite-Smith (Rider & Son, London, 1909),
+minh hoa Pamela Colman Smith.
+
+Tac pham da het han ban quyen (public domain) tai Hoa Ky va Anh.
+Nguon ban scan: Wikimedia Commons — Category:Rider-Waite tarot deck
+https://commons.wikimedia.org/wiki/Category:Rider-Waite_tarot_deck
+
+Tai ve o width=500 qua Special:FilePath. Ten file theo chi so trong src/data/deck.js
+(00.jpg = Ke Kho / The Fool ... 21.jpg = The Gioi / The World).

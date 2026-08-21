@@ -1,0 +1,173 @@
+<!--
+  Mặt lưng lá bài — dựng theo ảnh mẫu: Phú Sĩ dưới trăng vàng, torii và tháp
+  bên bờ suối, hoa anh đào và lá phong viền quanh, khung cổ hoạ tiết vàng/chàm.
+
+  Đây vẫn là bản vẽ thay thế. Bỏ ảnh thật vào `public/assets/card-back.png` là
+  app tự dùng ảnh đó (xem src/lib/cardBack.jsx).
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 402 650" width="402" height="650">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1d3a55"/>
+      <stop offset="60%" stop-color="#20506b"/>
+      <stop offset="100%" stop-color="#2f6b7d"/>
+    </linearGradient>
+    <linearGradient id="fuji" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2c4a72"/>
+      <stop offset="100%" stop-color="#1b3557"/>
+    </linearGradient>
+    <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c9a227"/>
+      <stop offset="100%" stop-color="#a8842033"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5b93b5"/>
+      <stop offset="100%" stop-color="#2f6081"/>
+    </linearGradient>
+    <pattern id="asanoha" width="22" height="22" patternUnits="userSpaceOnUse">
+      <path d="M11 0 L22 6 L22 16 L11 22 L0 16 L0 6 Z M11 0 L11 22 M0 6 L22 16 M22 6 L0 16"
+            fill="none" stroke="#c9a227" stroke-opacity=".30" stroke-width=".8"/>
+    </pattern>
+    <clipPath id="scene">
+      <rect x="52" y="70" width="298" height="470" rx="140"/>
+    </clipPath>
+  </defs>
+
+  <!-- giấy -->
+  <rect width="402" height="650" rx="16" fill="#f3ead4"/>
+  <rect x="8" y="8" width="386" height="634" rx="11" fill="#efe3c8"/>
+
+  <!-- khung hoạ tiết -->
+  <rect x="16" y="16" width="370" height="618" rx="8" fill="url(#asanoha)"/>
+  <rect x="16" y="16" width="370" height="618" rx="8" fill="none" stroke="#1b3557" stroke-width="3"/>
+  <rect x="24" y="24" width="354" height="602" rx="5" fill="none" stroke="#c9a227" stroke-width="1.6"/>
+  <rect x="30" y="30" width="342" height="590" rx="3" fill="none" stroke="#a8412c" stroke-width="1" stroke-opacity=".7"/>
+
+  <!-- khung tranh -->
+  <rect x="52" y="70" width="298" height="470" rx="140" fill="url(#sky)"/>
+
+  <g clip-path="url(#scene)">
+    <!-- trăng vàng -->
+    <circle cx="201" cy="196" r="74" fill="#e8c34e"/>
+    <circle cx="201" cy="196" r="74" fill="none" stroke="#f0d67e" stroke-width="2"/>
+
+    <!-- trăng nhỏ có thỏ -->
+    <circle cx="118" cy="176" r="30" fill="#f5edd6" fill-opacity=".92"/>
+    <g fill="#c9a227" fill-opacity=".75" transform="translate(118 178) scale(.9)">
+      <path d="M-4 6 q-6 -2 -6 -8 q0 -7 6 -9 q2 -8 5 -8 q2 0 1 8 q3 -8 5 -7 q2 1 -1 8 q6 3 6 9 q0 6 -7 7 Z"/>
+    </g>
+
+    <!-- núi Phú Sĩ -->
+    <path d="M201 236 L318 430 L84 430 Z" fill="url(#fuji)"/>
+    <path d="M201 236 L243 306 q-14 8 -24 0 q-10 -8 -20 2 q-9 8 -18 -2 L201 236 Z" fill="#f7f2e4"/>
+    <path d="M175 300 q14 10 26 2 q12 -8 22 4" fill="none" stroke="#f7f2e4" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- đồi vàng -->
+    <path d="M52 432 q60 -34 120 -6 q52 24 108 -4 q40 -20 70 0 L350 540 L52 540 Z" fill="url(#hill)" fill-opacity=".75"/>
+    <path d="M52 452 q70 -22 128 4 q60 24 118 -8 L350 540 L52 540 Z" fill="#b98f24" fill-opacity=".35"/>
+
+    <!-- suối -->
+    <path d="M196 428 q-16 32 6 56 q22 24 2 56 L166 540 q16 -30 -4 -54 q-20 -24 0 -58 Z" fill="url(#water)"/>
+    <path d="M188 444 q-12 26 4 46 M204 460 q-10 22 2 40" fill="none" stroke="#cfe6f0" stroke-width="1.6" stroke-opacity=".7" stroke-linecap="round"/>
+
+    <!-- torii -->
+    <g fill="#a8412c">
+      <path d="M112 470 h56 l-4 7 h-48 Z"/>
+      <rect x="116" y="481" width="48" height="5" rx="1"/>
+      <rect x="122" y="486" width="6" height="40" rx="1.5"/>
+      <rect x="152" y="486" width="6" height="40" rx="1.5"/>
+    </g>
+
+    <!-- tháp -->
+    <g fill="#a8412c" transform="translate(258 452)">
+      <path d="M-26 0 h52 l-6 7 h-40 Z"/>
+      <rect x="-16" y="7" width="32" height="14"/>
+      <path d="M-22 21 h44 l-5 7 h-34 Z"/>
+      <rect x="-13" y="28" width="26" height="14"/>
+      <path d="M-18 42 h36 l-4 7 h-28 Z"/>
+      <rect x="-10" y="49" width="20" height="16"/>
+      <rect x="-2" y="-14" width="4" height="14"/>
+    </g>
+
+    <!-- thông -->
+    <g fill="#2f5d4a">
+      <path d="M74 470 q10 -18 22 -2 q10 12 -4 12 h-16 q-12 0 -2 -10 Z"/>
+      <path d="M300 486 q12 -20 24 -2 q10 12 -4 12 h-18 q-12 0 -2 -10 Z"/>
+    </g>
+  </g>
+
+  <!-- viền tranh -->
+  <rect x="52" y="70" width="298" height="470" rx="140" fill="none" stroke="#c9a227" stroke-width="2.4"/>
+  <rect x="58" y="76" width="286" height="458" rx="134" fill="none" stroke="#1b3557" stroke-width="1.2" stroke-opacity=".55"/>
+
+  <!-- hoa anh đào -->
+  <g id="blossoms">
+    <g transform="translate(74 108) scale(1.05)">
+      <g fill="#f7ecec" stroke="#c98a92" stroke-width="1.1">
+        <circle cx="0" cy="-9" r="6.4"/><circle cx="8.6" cy="-2.8" r="6.4"/>
+        <circle cx="5.3" cy="7.3" r="6.4"/><circle cx="-5.3" cy="7.3" r="6.4"/>
+        <circle cx="-8.6" cy="-2.8" r="6.4"/>
+      </g>
+      <circle r="2.6" fill="#c9a227"/>
+    </g>
+    <g transform="translate(330 128) scale(.92)">
+      <g fill="#f7ecec" stroke="#c98a92" stroke-width="1.1">
+        <circle cx="0" cy="-9" r="6.4"/><circle cx="8.6" cy="-2.8" r="6.4"/>
+        <circle cx="5.3" cy="7.3" r="6.4"/><circle cx="-5.3" cy="7.3" r="6.4"/>
+        <circle cx="-8.6" cy="-2.8" r="6.4"/>
+      </g>
+      <circle r="2.6" fill="#c9a227"/>
+    </g>
+    <g transform="translate(64 402) scale(.98)">
+      <g fill="#f7ecec" stroke="#c98a92" stroke-width="1.1">
+        <circle cx="0" cy="-9" r="6.4"/><circle cx="8.6" cy="-2.8" r="6.4"/>
+        <circle cx="5.3" cy="7.3" r="6.4"/><circle cx="-5.3" cy="7.3" r="6.4"/>
+        <circle cx="-8.6" cy="-2.8" r="6.4"/>
+      </g>
+      <circle r="2.6" fill="#c9a227"/>
+    </g>
+    <g transform="translate(338 392) scale(1.02)">
+      <g fill="#f7ecec" stroke="#c98a92" stroke-width="1.1">
+        <circle cx="0" cy="-9" r="6.4"/><circle cx="8.6" cy="-2.8" r="6.4"/>
+        <circle cx="5.3" cy="7.3" r="6.4"/><circle cx="-5.3" cy="7.3" r="6.4"/>
+        <circle cx="-8.6" cy="-2.8" r="6.4"/>
+      </g>
+      <circle r="2.6" fill="#c9a227"/>
+    </g>
+    <g transform="translate(201 58) scale(.86)">
+      <g fill="#f7ecec" stroke="#c98a92" stroke-width="1.2">
+        <circle cx="0" cy="-9" r="6.4"/><circle cx="8.6" cy="-2.8" r="6.4"/>
+        <circle cx="5.3" cy="7.3" r="6.4"/><circle cx="-5.3" cy="7.3" r="6.4"/>
+        <circle cx="-8.6" cy="-2.8" r="6.4"/>
+      </g>
+      <circle r="2.6" fill="#c9a227"/>
+    </g>
+  </g>
+
+  <!-- lá phong -->
+  <g fill="#a8412c" fill-opacity=".85">
+    <path d="M120 74 l4 -9 l3 6 l6 -5 l-2 7 l8 -1 l-6 6 l7 3 l-9 2 l2 6 l-7 -3 l-2 8 l-4 -8 l-7 4 l2 -7 l-9 -1 l7 -4 l-6 -6 Z"/>
+    <path d="M282 78 l4 -9 l3 6 l6 -5 l-2 7 l8 -1 l-6 6 l7 3 l-9 2 l2 6 l-7 -3 l-2 8 l-4 -8 l-7 4 l2 -7 l-9 -1 l7 -4 l-6 -6 Z"/>
+    <path d="M88 566 l4 -9 l3 6 l6 -5 l-2 7 l8 -1 l-6 6 l7 3 l-9 2 l2 6 l-7 -3 l-2 8 l-4 -8 l-7 4 l2 -7 l-9 -1 l7 -4 l-6 -6 Z"/>
+    <path d="M310 566 l4 -9 l3 6 l6 -5 l-2 7 l8 -1 l-6 6 l7 3 l-9 2 l2 6 l-7 -3 l-2 8 l-4 -8 l-7 4 l2 -7 l-9 -1 l7 -4 l-6 -6 Z"/>
+  </g>
+
+  <!-- dải hoạ tiết dưới -->
+  <g transform="translate(201 588)">
+    <path d="M-118 0 h96 M22 0 h96" stroke="#c9a227" stroke-width="1.4"/>
+    <g fill="none" stroke="#a8412c" stroke-width="1.6">
+      <path d="M0 -13 L11 0 L0 13 L-11 0 Z"/>
+      <path d="M0 -7 L6 0 L0 7 L-6 0 Z"/>
+    </g>
+    <circle cx="-30" cy="0" r="3" fill="#1b3557"/>
+    <circle cx="30" cy="0" r="3" fill="#1b3557"/>
+  </g>
+
+  <!-- góc vàng -->
+  <g fill="none" stroke="#c9a227" stroke-width="1.8" stroke-opacity=".9">
+    <path d="M38 62 q0 -24 24 -24"/>
+    <path d="M364 62 q0 -24 -24 -24"/>
+    <path d="M38 588 q0 24 24 24"/>
+    <path d="M364 588 q0 24 -24 24"/>
+  </g>
+</svg>
