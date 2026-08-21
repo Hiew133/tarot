@@ -1,4 +1,11 @@
-export default function AskScreen({ spreadName, question, onQuestion, onBack, onShuffle }) {
+export default function AskScreen({
+  spreadName,
+  question,
+  onQuestion,
+  onBack,
+  onShuffle,
+  onSkip,
+}) {
   return (
     <div className="shell page">
       <div className="ask">
@@ -24,7 +31,7 @@ export default function AskScreen({ spreadName, question, onQuestion, onBack, on
             <button type="button" className="btn btn--rust" onClick={onShuffle}>
               Xào bài
             </button>
-            <button type="button" className="btn--quiet" onClick={onShuffle}>
+            <button type="button" className="btn--quiet" onClick={onSkip}>
               Bỏ qua, rút luôn
             </button>
           </div>

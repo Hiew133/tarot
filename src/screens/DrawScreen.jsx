@@ -7,6 +7,8 @@ import { DECK } from '../data/deck.js';
 import { FAN_CARD_W } from '../lib/cardBack.jsx';
 
 const HELD_SCALE = 1.95;  // lá to cỡ nào lúc cầm trên tay
+const DRAG_SLOP = 6;      // đi quá bấy nhiêu px thì tính là kéo, không phải bấm
+const MAX_TILT = 14;      // lá nghiêng tối đa khi kéo ngang
 
 /** Ô trống nằm dưới điểm (x, y), hoặc null nếu không có. */
 function emptySlotAt(x, y) {
@@ -97,6 +99,7 @@ export default function DrawScreen({
       const grabX = info.offsetX;
       const grabY = info.offsetY;
       let moved = false;
+      let lastX = info.x;
 
       setHeld({
         fanIndex,
@@ -107,7 +110,14 @@ export default function DrawScreen({
       });
 
       const move = (e) => {
-        if (Math.abs(e.movementX) + Math.abs(e.movementY) > 2) moved = true;
+        // Đo bằng khoảng cách so với chỗ bấm xuống chứ không dùng movementX:
+        // trình duyệt cũ không có thuộc tính đó, và khi ấy mọi cú kéo đều bị
+        // hiểu nhầm thành bấm gọn.
+        if (Math.abs(e.clientX - info.x) + Math.abs(e.clientY - info.y) > DRAG_SLOP) {
+          moved = true;
+        }
+        const dx = e.clientX - lastX;
+        lastX = e.clientX;
         const target = emptySlotAt(e.clientX, e.clientY);
         setHeld((h) =>
           h
@@ -115,7 +125,7 @@ export default function DrawScreen({
                 ...h,
                 x: e.clientX + grabX,
                 y: e.clientY + grabY,
-                tilt: Math.max(-14, Math.min(14, (e.movementX || 0) * 1.6)),
+                tilt: Math.max(-MAX_TILT, Math.min(MAX_TILT, dx * 1.6)),
                 target,
               }
             : h

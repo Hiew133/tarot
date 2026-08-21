@@ -50,12 +50,14 @@ export function useReading() {
     setDetail(0);
   }, []);
 
+  // Lượt mới là lượt mới: câu hỏi của lần trước không được ở lại trong ô nhập.
   const chooseSpread = useCallback(
     (key) => {
       clearTimeout(shuffleTimer.current);
       setSpreadKey(key);
       setScreen('reading');
       setPhase('ask');
+      setQuestion('');
       reset(SPREADS[key].pos.length);
     },
     [reset]
@@ -68,6 +70,12 @@ export function useReading() {
     clearTimeout(shuffleTimer.current);
     shuffleTimer.current = setTimeout(() => setPhase('draw'), SHUFFLE_MS);
   }, [reset, total]);
+
+  /** Rút mà không đặt câu hỏi — bỏ luôn chữ đã gõ dở rồi xào. */
+  const skipQuestion = useCallback(() => {
+    setQuestion('');
+    startShuffle();
+  }, [startShuffle]);
 
   /** Đặt lá kế tiếp trên chồng vào ô `position`. Ô đã có lá thì bỏ qua. */
   const placeCard = useCallback(
@@ -121,10 +129,11 @@ export function useReading() {
   const allOpen = total > 0 && open.length === total;
   const lastOpen = open.length ? open[open.length - 1] : -1;
 
+  // Ô đang xem mà trống thì lùi về lá đã lật đầu tiên. Không còn lá nào thì
+  // để -1 và màn chi tiết tự hiện trạng thái rỗng — đừng giả vờ đó là lá 0.
   let detailIndex = detail;
   if (board[detailIndex] == null) {
     detailIndex = open.length ? open[0] : board.findIndex((v) => v !== null);
-    if (detailIndex < 0) detailIndex = 0;
   }
 
   return {
@@ -146,6 +155,7 @@ export function useReading() {
     go,
     chooseSpread,
     startShuffle,
+    skipQuestion,
     placeCard,
     flip,
     openDetail,

@@ -42,6 +42,7 @@ export default function App({ readerName = 'Linh Đan' }) {
               onQuestion={r.setQuestion}
               onBack={() => r.go('spreads')}
               onShuffle={r.startShuffle}
+              onSkip={r.skipQuestion}
             />
           )}
 

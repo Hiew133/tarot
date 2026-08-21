@@ -9,19 +9,35 @@ export default function DetailScreen({
   onBack,
   onSelect,
 }) {
-  const deckIndex = board[detailIndex];
-  const card = DECK[deckIndex ?? 0];
+  const deckIndex = detailIndex >= 0 ? board[detailIndex] : null;
+  const card = deckIndex == null ? null : DECK[deckIndex];
   const others = open.filter((i) => i !== detailIndex);
+
+  const back = (
+    <button type="button" className="back" onClick={onBack}>
+      ← Về bàn bài
+    </button>
+  );
+
+  // Chưa lật lá nào thì nói thẳng là chưa có gì, đừng hiện đại lá đầu bộ.
+  if (!card) {
+    return (
+      <div className="shell page">
+        {back}
+        <div className="empty">
+          <p style={{ margin: 0 }}>Chưa có lá nào để đọc. Lật một lá trên bàn đã.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="shell page">
-      <button type="button" className="back" onClick={onBack}>
-        ← Về bàn bài
-      </button>
+      {back}
 
       <div className="detail">
         <div className="detail__art">
-          <img src={cardArt(deckIndex ?? 0)} alt={`Lá ${card.name}`} />
+          <img src={cardArt(deckIndex)} alt={`Lá ${card.name}`} width="500" height="839" />
         </div>
 
         <div>

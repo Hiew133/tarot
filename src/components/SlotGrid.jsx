@@ -68,7 +68,13 @@ export default function SlotGrid({
                 ...(state === 'down' ? { backgroundImage: `url(${cardBack})` } : null),
               }}
             >
-              {isOpen && <img className="slot__art" src={cardArt(deckIndex)} alt={card.name} />}
+              {isOpen && <img
+                  className="slot__art"
+                  src={cardArt(deckIndex)}
+                  alt={card.name}
+                  width="500"
+                  height="839"
+                />}
             </div>
             <div className="slot__label">{label}</div>
             {isOpen && (
