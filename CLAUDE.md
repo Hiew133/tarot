@@ -8,15 +8,11 @@ Web app trải bài tarot, chạy hoàn toàn ở client — **không có backen
 API, không có database**. Mọi thứ nằm trong bundle tĩnh; nhật ký lưu ở
 `localStorage` của người dùng.
 
-Code nằm trong thư mục con **`tarot/`**, không phải ở gốc repo. Gốc repo chỉ có
-`README.md` và file này.
+Code nằm **ngay ở gốc repo**.
 
 ## Lệnh
 
-Chạy từ trong `tarot/`:
-
 ```bash
-cd tarot
 npm install      # lần đầu
 npm run dev      # dev server, http://localhost:5173
 npm run build    # build production vào dist/
@@ -27,7 +23,7 @@ Chưa có test runner, chưa có linter, chưa có type checking. Cách kiểm t
 thay đổi là `npm run build` (bắt lỗi import/cú pháp) rồi mở `npm run dev` xem
 bằng mắt. Đừng báo "đã test" khi mới chỉ build.
 
-`tarot/.claude/launch.json` đã cấu hình sẵn cho `preview_start` với tên `tarot`.
+`.claude/launch.json` đã cấu hình sẵn cho `preview_start` với tên `tarot`.
 
 ## Stack
 
@@ -39,7 +35,7 @@ library nếu chưa hỏi.
 ## Kiến trúc
 
 ```
-tarot/src/
+src/
   main.jsx           điểm vào, mount <App/> trong StrictMode
   App.jsx            router thủ công: đọc r.screen/r.phase rồi chọn màn để vẽ
   styles.css         toàn bộ CSS (~800 dòng), CSS variables ở :root
@@ -61,7 +57,7 @@ tarot/src/
 (`ask` | `shuffle` | `draw`). Không có URL, không có history API — bấm Back của
 trình duyệt là thoát app.
 
-**Toàn bộ trạng thái lượt trải nằm trong [`useReading`](tarot/src/lib/useReading.js).**
+**Toàn bộ trạng thái lượt trải nằm trong [`useReading`](src/lib/useReading.js).**
 `App` chỉ phân phối props xuống; các màn và component đều là hàm thuần theo
 props, không tự giữ state nghiệp vụ (trừ state hiệu ứng cục bộ như `held`,
 `flying`, `taken` trong `DrawScreen`). Thêm tính năng liên quan tới lượt trải
@@ -121,4 +117,4 @@ thì rơi về `card-back.svg`. Muốn dùng ảnh thật chỉ cần bỏ file 
 - Branch chính: `main`. Remote: `origin` (GitHub `Hiew133/tarot`).
 - Commit message tiếng Việt, dòng đầu là câu tóm tắt ở thể mệnh lệnh/mô tả ngắn.
 - **Không thêm dòng `Co-Authored-By: Claude`** — chủ repo muốn author chỉ có tên mình.
-- `node_modules/` và `dist/` đã nằm trong `tarot/.gitignore`; đừng commit chúng.
+- `node_modules/` và `dist/` đã nằm trong `.gitignore`; đừng commit chúng.
