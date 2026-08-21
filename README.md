@@ -1,5 +1,7 @@
 # Tarot
 
+**→ [hiew133.github.io/tarot](https://hiew133.github.io/tarot/)**
+
 Web app trải bài tarot — dựng từ bản thiết kế `Tarot App.dc.html` trong
 [Claude Design project](https://claude.ai/design/p/2b57b5a4-035d-4b9a-934d-efb6377fd7f4?file=Tarot+App.dc.html),
 sau đó làm lại giao diện theo hướng web.
@@ -20,7 +22,10 @@ npm run build  # bản production vào dist/
 ```
 
 Đẩy lên GitHub Pages tự động qua [deploy.yml](.github/workflows/deploy.yml) mỗi
-lần push `main` — cần bật Settings → Pages → Source: GitHub Actions một lần.
+lần push `main`. Workflow tự bật Pages nếu repo chưa bật, và build với
+`BASE_PATH=/tarot/` vì Pages đặt site ở đường dẫn con.
+
+Cần Node ≥ 22.22 (jsdom 30 không chạy trên Node 20).
 
 ## Giao diện
 
