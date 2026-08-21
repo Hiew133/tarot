@@ -17,14 +17,22 @@ const DEAL_SETTLE = 700;
  *
  * Quạt chỉ lo phần bày bài và báo ra "vừa bốc lá nào" — chuyện lá đi đâu sau đó
  * do bàn bài (DrawScreen) cầm, vì chỉ nó mới biết các ô.
+ *
+ * Bàn phím: cả quạt chỉ chiếm **một** điểm dừng Tab (roving tabindex), rồi mũi
+ * tên trái/phải chạy dọc quạt, Enter hoặc Space rút lá đang chọn. Ba mươi nút
+ * cùng nằm trong chuỗi Tab thì đúng chuẩn nhưng dùng thì khổ.
  */
-export default function CardFan({ taken, grabbed, disabled, onPickUp }) {
+export default function CardFan({ taken, grabbed, disabled, onPickUp, onQuickPick }) {
   const cardBack = useCardBack();
   const [hover, setHover] = useState(null);
   const [dealt, setDealt] = useState(false);
   const [dealing, setDealing] = useState(true);
   const [spreadX, setSpreadX] = useState(360);
+  const [focusIndex, setFocusIndex] = useState(0);
   const rootRef = useRef(null);
+  const cardsRef = useRef([]);
+
+  const canTake = (i) => !disabled && !taken.has(i) && grabbed !== i;
 
   // Quạt rộng theo khung, nhưng không rộng quá thành lưa thưa.
   useLayoutEffect(() => {
@@ -47,16 +55,37 @@ export default function CardFan({ taken, grabbed, disabled, onPickUp }) {
     };
   }, []);
 
+  // Lá đang giữ chỗ Tab mà vừa bị rút mất thì chuyển sang lá còn rút được.
+  useEffect(() => {
+    if (disabled || canTake(focusIndex)) return;
+    for (let i = 0; i < FAN_N; i++) {
+      if (canTake(i)) {
+        setFocusIndex(i);
+        return;
+      }
+    }
+  }, [disabled, taken, grabbed, focusIndex]);
+
   const geometry = (i) => {
     const half = (FAN_N - 1) / 2;
     const u = (i - half) / half;
     return { x: u * spreadX, y: u * u * ARC_DEPTH, angle: u * MAX_ANGLE };
   };
 
+  const moveFocus = (from, step) => {
+    for (let i = from + step; i >= 0 && i < FAN_N; i += step) {
+      if (!canTake(i)) continue;
+      setFocusIndex(i);
+      cardsRef.current[i]?.focus();
+      return;
+    }
+  };
+
   const handleDown = (i) => (e) => {
-    if (disabled || taken.has(i) || grabbed != null) return;
+    if (!canTake(i) || grabbed != null) return;
     e.preventDefault();
     const box = e.currentTarget.getBoundingClientRect();
+    setFocusIndex(i);
     onPickUp(i, {
       x: e.clientX,
       y: e.clientY,
@@ -67,8 +96,43 @@ export default function CardFan({ taken, grabbed, disabled, onPickUp }) {
     });
   };
 
+  const handleKey = (i) => (e) => {
+    const step =
+      e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1
+      : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1
+      : 0;
+
+    if (step) {
+      e.preventDefault();
+      moveFocus(i, step);
+      return;
+    }
+    if (e.key === 'Home' || e.key === 'End') {
+      e.preventDefault();
+      moveFocus(e.key === 'Home' ? -1 : FAN_N, e.key === 'Home' ? 1 : -1);
+      return;
+    }
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+
+    // Chặn click tổng hợp của <button>: bàn phím đi lối rút nhanh riêng, lá tự
+    // bốc lên giữa bàn rồi về ô trống đầu tiên — kéo thả thì không làm được.
+    e.preventDefault();
+    if (!canTake(i) || grabbed != null) return;
+    const box = e.currentTarget.getBoundingClientRect();
+    onQuickPick(i, {
+      cx: box.left + box.width / 2,
+      cy: box.top + box.height / 2,
+      rotate: geometry(i).angle,
+    });
+  };
+
   return (
-    <div className="fan" ref={rootRef}>
+    <div
+      className="fan"
+      ref={rootRef}
+      role="group"
+      aria-label="Quạt bài úp — mũi tên trái/phải để chọn lá, Enter để rút"
+    >
       {Array.from({ length: FAN_N }, (_, i) => {
         const { x, y, angle } = geometry(i);
         const gone = taken.has(i) || grabbed === i;
@@ -98,13 +162,16 @@ export default function CardFan({ taken, grabbed, disabled, onPickUp }) {
             };
 
         return (
-          <img
+          <button
             key={i}
+            type="button"
+            ref={(el) => { cardsRef.current[i] = el; }}
             className={`fan__card${live ? ' fan__card--live' : ''}`}
-            src={cardBack}
-            alt=""
-            draggable={false}
+            aria-label={`Lá úp thứ ${i + 1}`}
+            tabIndex={i === focusIndex ? 0 : -1}
+            disabled={!live}
             onPointerDown={handleDown(i)}
+            onKeyDown={handleKey(i)}
             onPointerEnter={() => live && setHover(i)}
             onPointerLeave={() => setHover((h) => (h === i ? null : h))}
             style={{
@@ -115,7 +182,9 @@ export default function CardFan({ taken, grabbed, disabled, onPickUp }) {
               cursor: live ? 'grab' : 'default',
               zIndex: lifted ? FAN_N + 10 : i,
             }}
-          />
+          >
+            <img src={cardBack} alt="" draggable={false} />
+          </button>
         );
       })}
     </div>

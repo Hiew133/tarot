@@ -571,19 +571,32 @@ body {
   touch-action: none;
   user-select: none;
 }
+/* Là <button> thật để bàn phím rút được bài — nên phải gột sạch nền/viền mặc định. */
 .fan__card {
   position: absolute;
   left: 50%;
   bottom: 0;
   width: 78px;
   margin-left: -39px;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: block;
   border-radius: 7px;
   transform-origin: 50% 92%;
   box-shadow: 0 14px 26px rgba(0, 0, 0, .5);
   -webkit-user-drag: none;
   will-change: transform;
 }
-.fan__card--live:hover { filter: brightness(1.12) drop-shadow(0 0 14px rgba(201, 162, 39, .5)); }
+.fan__card img {
+  display: block;
+  width: 100%;
+  border-radius: 7px;
+  -webkit-user-drag: none;
+}
+.fan__card--live:hover,
+.fan__card--live:focus-visible { filter: brightness(1.12) drop-shadow(0 0 14px rgba(201, 162, 39, .5)); }
+.fan__card:focus-visible { outline: 3px solid var(--gold-soft); outline-offset: 4px; }
 
 /* Lá đang cầm trên tay, bám theo con trỏ */
 .held-card {
@@ -765,6 +778,13 @@ body {
 .offer__name { font-size: 16px; }
 .offer__meta { font-family: var(--font-mono); font-size: 13px; color: var(--gold); }
 
+/* ── Vòng focus ────────────────────────────────────────── */
+
+/* Nền tối làm vòng focus mặc định của trình duyệt gần như tàng hình. */
+:focus-visible { outline: 3px solid var(--gold-soft); outline-offset: 3px; border-radius: 4px; }
+.slot:focus-visible,
+.spread:focus-visible { outline-offset: 5px; }
+
 /* ── Màn hình hẹp ──────────────────────────────────────── */
 
 @media (max-width: 900px) {
@@ -788,6 +808,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .flying-card, .held-card { transition: none; }
   .shuffle__card { animation-duration: 3.2s; animation-timing-function: ease-in-out; }
   .slot--up .slot__face, .slot--down .slot__face { animation: none; }
   .fan__card { transition-duration: .12s !important; transition-delay: 0ms !important; }

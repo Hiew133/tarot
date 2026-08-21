@@ -31,7 +31,10 @@ function buildHint({ positions, board, filled, allOpen, lastOpen, holding }) {
     return { title: 'Đang cầm bài', body: 'Kéo lá tới ô bạn muốn rồi thả tay để đặt xuống.' };
   }
   if (filled === 0) {
-    return { title: 'Bước 1', body: 'Bốc một lá trong quạt rồi kéo tới ô bạn muốn đặt. Bấm một cái là lá tự về ô trống đầu tiên.' };
+    return {
+      title: 'Bước 1',
+      body: 'Bốc một lá trong quạt rồi kéo tới ô bạn muốn đặt. Bấm một cái là lá tự về ô trống đầu tiên. Dùng bàn phím thì Tab tới quạt bài, mũi tên để chọn lá, Enter để rút.',
+    };
   }
   if (lastOpen < 0) {
     return { title: 'Bước 2', body: 'Chạm vào lá úp trên bàn để lật nó lên.' };
@@ -83,6 +86,29 @@ export default function DrawScreen({
     [onPlace]
   );
 
+  /**
+   * Rút nhanh: lá bốc lên giữa bàn, phóng to giữ một nhịp rồi về ô trống đầu
+   * tiên. Dùng cho cả cú bấm gọn lẫn phím Enter trên quạt bài.
+   */
+  const quickPick = useCallback(
+    (fanIndex, origin) => {
+      const spot = board.findIndex((v) => v === null);
+      const area = tableRef.current?.getBoundingClientRect();
+      const rect = spot >= 0 ? slotFaceRect(spot) : null;
+      if (spot < 0 || !rect || !area) return;
+
+      setTaken((prev) => new Set(prev).add(fanIndex));
+      setFlying({
+        index: spot,
+        from: { cx: origin.cx, cy: origin.cy, rotate: origin.rotate, scale: origin.scale ?? 1 },
+        stage: { cx: area.left + area.width / 2, cy: area.top + area.height * 0.42 },
+        to: rect,
+      });
+      onPlace(spot);
+    },
+    [board, onPlace]
+  );
+
   const release = useRef(null);
   useEffect(() => () => release.current?.(), []);
 
@@ -91,7 +117,7 @@ export default function DrawScreen({
    *
    * Gắn listener ngay tại đây chứ không qua useEffect: một cú bấm dứt khoát có
    * thể nhả tay trước khi effect kịp chạy, và khi đó lá sẽ kẹt lại trên tay.
-   * `board` không đổi suốt lúc cầm bài (chỉ lúc thả mới đặt) nên đóng gói giá
+   * Bàn bài không đổi suốt lúc cầm lá (chỉ lúc thả mới đặt) nên đóng gói giá
    * trị hiện tại vào đây là an toàn.
    */
   const pickUp = useCallback(
@@ -158,20 +184,7 @@ export default function DrawScreen({
         }
         if (moved) return;  // kéo ra chỗ trống rồi thả — lá quay lại quạt
 
-        // Bấm gọn một cái: lá tự bốc lên giữa bàn rồi về ô trống đầu tiên.
-        const spot = board.findIndex((v) => v === null);
-        const area = tableRef.current?.getBoundingClientRect();
-        const rect = spot >= 0 ? slotFaceRect(spot) : null;
-        if (spot < 0 || !rect || !area) return;
-
-        setTaken((prev) => new Set(prev).add(fanIndex));
-        setFlying({
-          index: spot,
-          from: { cx: from.cx, cy: from.cy, rotate: info.rotate, scale: 1 },
-          stage: { cx: area.left + area.width / 2, cy: area.top + area.height * 0.42 },
-          to: rect,
-        });
-        onPlace(spot);
+        quickPick(fanIndex, { cx: from.cx, cy: from.cy, rotate: info.rotate });
       }
 
       window.addEventListener('pointermove', move);
@@ -179,7 +192,7 @@ export default function DrawScreen({
       window.addEventListener('pointercancel', finish);
       release.current = detach;
     },
-    [board, land, onPlace]
+    [land, quickPick]
   );
 
   const hint = buildHint({
@@ -233,6 +246,7 @@ export default function DrawScreen({
         grabbed={held?.fanIndex ?? null}
         disabled={done}
         onPickUp={pickUp}
+        onQuickPick={quickPick}
       />
 
       {held && (
