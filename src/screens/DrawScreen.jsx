@@ -3,7 +3,7 @@ import CardFan from '../components/CardFan.jsx';
 import FlyingCard from '../components/FlyingCard.jsx';
 import HeldCard from '../components/HeldCard.jsx';
 import SlotGrid from '../components/SlotGrid.jsx';
-import { DECK } from '../data/deck.js';
+import { readDraw } from '../lib/deal.js';
 import { FAN_CARD_W } from '../lib/cardBack.jsx';
 
 const HELD_SCALE = 1.95;  // lá to cỡ nào lúc cầm trên tay
@@ -40,7 +40,11 @@ function buildHint({ positions, board, filled, allOpen, lastOpen, holding }) {
     return { title: 'Bước 2', body: 'Chạm vào lá úp trên bàn để lật nó lên.' };
   }
   if (!allOpen) {
-    return { title: positions[lastOpen], body: DECK[board[lastOpen]].short };
+    const drawn = readDraw(board[lastOpen]);
+    return {
+      title: `${positions[lastOpen].name}${drawn.rev ? ' · lá ngược' : ''}`,
+      body: drawn.short,
+    };
   }
   return {
     title: `Đủ ${positions.length} lá`,

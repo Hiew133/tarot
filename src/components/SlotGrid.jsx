@@ -1,5 +1,5 @@
-import { DECK } from '../data/deck.js';
 import { cardArt } from '../lib/cardArt.js';
+import { readDraw } from '../lib/deal.js';
 import { useCardBack } from '../lib/cardBack.jsx';
 
 /** Bàn web rộng nên lá to hẳn; bộ trải nhiều lá thì thu nhỏ lại cho vừa hàng. */
@@ -15,6 +15,8 @@ function cardSize(count) {
  *
  * `landingIndex` là ô đang có lá bay tới — ô đó giữ nguyên vẻ trống cho tới khi
  * lá đáp xuống, để lá bay và lá trong ô không hiện cùng lúc thành hai lá.
+ *
+ * Lá ngược thì ảnh xoay 180°, đúng như trên bàn thật, và aria-label nói rõ chiều.
  */
 export default function SlotGrid({
   positions,
@@ -31,11 +33,12 @@ export default function SlotGrid({
 
   return (
     <div className="slots">
-      {positions.map((label, i) => {
-        const deckIndex = i === landingIndex ? null : board[i];
-        const has = deckIndex !== null && deckIndex !== undefined;
+      {positions.map((position, i) => {
+        const label = position.name;
+        const draw = i === landingIndex ? null : board[i];
+        const has = draw !== null && draw !== undefined;
         const isOpen = has && open.includes(i);
-        const card = has ? DECK[deckIndex] : null;
+        const drawn = has ? readDraw(draw) : null;
 
         const state = !has ? 'empty' : isOpen ? 'up' : 'down';
         const classes = ['slot', `slot--${state}`];
@@ -52,8 +55,9 @@ export default function SlotGrid({
             disabled={!has}
             aria-label={
               !has ? `${label} — ô trống`
-                : isOpen ? `${label} — ${card.name}, đọc chi tiết`
-                : `${label} — lá úp, chạm để lật`
+                : isOpen
+                  ? `${label} — ${drawn.card.name}${drawn.rev ? ', lá ngược' : ''}, đọc chi tiết`
+                  : `${label} — lá úp, chạm để lật`
             }
             onClick={() => {
               if (!has) return;
@@ -68,18 +72,21 @@ export default function SlotGrid({
                 ...(state === 'down' ? { backgroundImage: `url(${cardBack})` } : null),
               }}
             >
-              {isOpen && <img
-                  className="slot__art"
-                  src={cardArt(deckIndex)}
-                  alt={card.name}
+              {isOpen && (
+                <img
+                  className={`slot__art${drawn.rev ? ' slot__art--rev' : ''}`}
+                  src={cardArt(draw.i)}
+                  alt={drawn.card.name}
                   width="500"
                   height="839"
-                />}
+                />
+              )}
             </div>
             <div className="slot__label">{label}</div>
             {isOpen && (
               <div className="slot__card">
-                {card.num} · {card.name}
+                {drawn.card.num} · {drawn.card.name}
+                {drawn.rev && <span className="slot__rev">ngược</span>}
               </div>
             )}
           </button>

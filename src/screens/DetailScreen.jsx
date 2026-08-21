@@ -1,6 +1,15 @@
-import { DECK } from '../data/deck.js';
 import { cardArt } from '../lib/cardArt.js';
+import { drawName, readDraw } from '../lib/deal.js';
 
+/**
+ * Đọc kỹ một lá.
+ *
+ * Bày mở sẵn theo mục thay vì giấu sau nút bấm: người đã lật bài lên thì đang
+ * muốn đọc, bắt bấm thêm một cú nữa chỉ tổ vướng.
+ *
+ * Vị trí không chỉ là cái nhãn — nó đặt câu hỏi (`lens`), còn lá trả lời. Đó là
+ * lý do cùng một lá đọc ở "Quá khứ" và ở "Nên tránh" lại ra hai chuyện khác nhau.
+ */
 export default function DetailScreen({
   positions,
   board,
@@ -9,8 +18,9 @@ export default function DetailScreen({
   onBack,
   onSelect,
 }) {
-  const deckIndex = detailIndex >= 0 ? board[detailIndex] : null;
-  const card = deckIndex == null ? null : DECK[deckIndex];
+  const draw = detailIndex >= 0 ? board[detailIndex] : null;
+  const drawn = draw ? readDraw(draw) : null;
+  const position = positions[detailIndex];
   const others = open.filter((i) => i !== detailIndex);
 
   const back = (
@@ -20,7 +30,7 @@ export default function DetailScreen({
   );
 
   // Chưa lật lá nào thì nói thẳng là chưa có gì, đừng hiện đại lá đầu bộ.
-  if (!card) {
+  if (!drawn) {
     return (
       <div className="shell page">
         {back}
@@ -31,25 +41,60 @@ export default function DetailScreen({
     );
   }
 
+  const { card, rev } = drawn;
+
   return (
     <div className="shell page">
       {back}
 
       <div className="detail">
-        <div className="detail__art">
-          <img src={cardArt(deckIndex)} alt={`Lá ${card.name}`} width="500" height="839" />
+        <div className="detail__side">
+          <div className="detail__art">
+            <img
+              className={rev ? 'detail__img--rev' : undefined}
+              src={cardArt(draw.i)}
+              alt={`Lá ${card.name}${rev ? ', nằm ngược' : ''}`}
+              width="500"
+              height="839"
+            />
+          </div>
+          {rev && <div className="detail__revtag">Lá nằm ngược</div>}
+          {card.keywords?.length > 0 && (
+            <ul className="chips">
+              {card.keywords.map((k) => (
+                <li className="chip" key={k}>{k}</li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div>
-          <div className="detail__pos">{positions[detailIndex] || ''}</div>
+          <div className="detail__pos">{position?.name || ''}</div>
           <h1 className="detail__name">{card.name}</h1>
           <div className="detail__num">
             {card.num} · {card.key}
           </div>
 
-          <p className="detail__short">{card.short}</p>
+          {position?.lens && (
+            <p className="detail__lens">
+              <span>Ô này hỏi:</span> {position.lens}
+            </p>
+          )}
+
+          <p className="detail__short">{drawn.short}</p>
           <hr className="rule" />
-          <p className="detail__long">{card.long}</p>
+          <p className="detail__long">{drawn.long}</p>
+
+          <div className="section-label">
+            {rev ? 'Nếu lá này nằm xuôi' : 'Nếu lá này nằm ngược'}
+          </div>
+          <p className="detail__flip">{rev ? card.long : card.rev.long}</p>
+
+          <div className="section-label">Trong tranh</div>
+          <p className="detail__imagery">{card.imagery}</p>
+
+          <div className="section-label">Tự hỏi mình</div>
+          <p className="detail__ask">{card.ask}</p>
 
           {others.length > 0 && (
             <>
@@ -62,7 +107,7 @@ export default function DetailScreen({
                     className="pill"
                     onClick={() => onSelect(i)}
                   >
-                    {positions[i]} · {DECK[board[i]].name}
+                    {positions[i].name} · {drawName(board[i])}
                   </button>
                 ))}
               </div>

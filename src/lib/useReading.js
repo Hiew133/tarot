@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { DECK } from '../data/deck.js';
 import { SPREADS } from '../data/spreads.js';
-import { placeAt, shuffleDeck } from './deal.js';
+import { drawName, placeAt, shuffleDeck } from './deal.js';
 import { initialScreen, screenFromHash, syncHash } from './route.js';
 import { clearHistory, loadHistory, pushEntry, saveHistory, today } from './history.js';
 
@@ -11,9 +10,10 @@ const DEFAULT_SPREAD = 'three';
 /**
  * Một lượt trải bài: chọn kiểu trải → đặt câu hỏi → xào → bốc và đặt → lật → đọc.
  *
- * `board` là bàn bài: mỗi vị trí giữ chỉ số lá trong DECK, hoặc null khi còn
- * trống. Người chơi tự chọn đặt lá vào ô nào, nên bàn không lấp tuần tự — lá
- * lấy từ chồng đã xào theo thứ tự, còn chỗ đặt là tuỳ họ.
+ * `board` là bàn bài: mỗi vị trí giữ một lá đã rút `{ i, rev }` — chỉ số trong
+ * DECK và chiều xuôi/ngược — hoặc null khi còn trống. Người chơi tự chọn đặt lá
+ * vào ô nào, nên bàn không lấp tuần tự: lá lấy từ chồng đã xào theo thứ tự, còn
+ * chỗ đặt là tuỳ họ. Chiều lá đã quyết từ lúc xào, không đổi khi đặt.
  */
 export function useReading() {
   const [screen, setScreen] = useState(initialScreen);
@@ -136,7 +136,8 @@ export function useReading() {
   // Lật đủ bộ thì tự ghi vào nhật ký — mỗi bàn bài chỉ ghi một lần.
   useEffect(() => {
     if (total === 0 || open.length !== total || filled !== total) return;
-    const signature = board.join(',');
+    // Chiều lá cũng nằm trong chữ ký: cùng bộ lá nhưng khác chiều là lượt khác.
+    const signature = board.map((d) => `${d.i}${d.rev ? 'r' : ''}`).join(',');
     if (savedSignature.current === signature) return;
     savedSignature.current = signature;
 
@@ -144,7 +145,7 @@ export function useReading() {
       when: today(),
       spread: spread.name,
       question: question || '(không đặt câu hỏi)',
-      cards: board.map((i) => DECK[i].name).join(' · '),
+      cards: board.map(drawName).join(' · '),
     };
     setHistory((prev) => {
       const next = pushEntry(prev, entry);
