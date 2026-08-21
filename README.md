@@ -125,5 +125,16 @@ Về API: `tarotapi.dev` chỉ trả **chữ** (nghĩa xuôi/ngược, mô tả)
 - **`prefers-reduced-motion`**: xào bài chậm lại, lá bay rút còn 160 ms, bỏ hiệu
   ứng lật và độ trễ trải quạt.
 
-Bộ bài hiện có 22 lá Ẩn Chính ([deck.js](src/data/deck.js)). Thêm 56 lá Ẩn Phụ
-chỉ cần nối tiếp vào mảng đó.
+## Đọc bài
+
+Mỗi lá trong [deck.js](src/data/deck.js) có nghĩa xuôi, nghĩa ngược, từ khoá,
+phần giải thích biểu tượng trong tranh Rider–Waite–Smith, và một câu để tự vấn.
+Chiều lá quyết ngay lúc xào; lá ngược thì ảnh xoay 180° trên bàn.
+
+Vị trí trong bộ trải không chỉ là cái nhãn — mỗi vị trí mang một câu hỏi
+(`lens` trong [spreads.js](src/data/spreads.js)). Vị trí hỏi, lá trả lời, người
+đọc ghép lại. Nhờ vậy cùng một lá đọc ở "Quá khứ" và ở "Nên tránh" ra hai chuyện
+khác nhau mà không phải viết sẵn 220 đoạn văn.
+
+Bộ bài hiện có 22 lá Ẩn Chính. Thêm 56 lá Ẩn Phụ chỉ cần nối tiếp vào mảng đó —
+nhớ giữ đủ các trường, [deal.test.js](src/lib/deal.test.js) sẽ kiểm.

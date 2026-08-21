@@ -44,15 +44,15 @@ src/
   styles.css         toàn bộ CSS (~830 dòng), CSS variables ở :root
   lib/
     useReading.js    ⭐ trạng thái một lượt trải — nguồn sự thật duy nhất
-    deal.js          shuffleDeck() Fisher–Yates · placeAt() đặt lá (hàm thuần)
+    deal.js          shuffleDeck() · placeAt() · readDraw() · drawName() — hàm thuần
     history.js       đọc/ghi/xoá localStorage (key 'tarot-nhatky', tối đa 20 mục)
     route.js         hash ↔ màn hình, phân biệt màn mở lại được và màn không
     assets.js        asset(path) — ghép BASE_URL cho file trong public/
     cardArt.js       cardArt(i) → đường dẫn ảnh mặt lá
     cardBack.jsx     CardBackProvider — context cho ảnh mặt lưng (PNG → SVG)
   data/
-    deck.js          DECK: 22 lá Ẩn Chính {num, name, key, short, long}
-    spreads.js       SPREADS: 4 kiểu trải, số lá = độ dài mảng `pos`
+    deck.js          DECK: 22 lá Ẩn Chính, mỗi lá có nghĩa xuôi lẫn nghĩa ngược
+    spreads.js       SPREADS: 4 kiểu trải; mỗi vị trí có {name, lens}
     reader.js        READER: nội dung trang "Về reader"
   screens/           8 màn, mỗi màn một file, nhận props thuần
   components/        SiteHeader, SlotGrid, CardFan, HeldCard, FlyingCard
@@ -71,11 +71,16 @@ props, không tự giữ state nghiệp vụ (trừ state hiệu ứng cục b�
 `flying`, `taken` trong `DrawScreen`). Thêm tính năng liên quan tới lượt trải
 thì sửa `useReading`, đừng rải state ra các màn.
 
-**Mô hình bàn bài:** `order` là cả bộ đã xào (mảng chỉ số vào `DECK`), `board`
-là mảng theo vị trí, mỗi ô giữ chỉ số lá hoặc `null`. Lá lấy từ chồng **theo thứ
-tự** (`order[số ô đã lấp]`), nhưng đặt vào ô nào là do người dùng chọn — nên
-`board` không lấp tuần tự. Xào một lần lúc bấm "Xào bài" nên không bao giờ trùng
-lá. Phần thuần của việc đặt lá nằm ở `placeAt()` trong `deal.js` và có test.
+**Mô hình bàn bài:** `order` là cả bộ đã xào — mảng `{ i, rev }`, tức chỉ số vào
+`DECK` cộng chiều xuôi/ngược. `board` là mảng theo vị trí, mỗi ô giữ một lá đã
+rút hoặc `null`. Lá lấy từ chồng **theo thứ tự** (`order[số ô đã lấp]`), nhưng
+đặt vào ô nào là do người dùng chọn — nên `board` không lấp tuần tự. Xào một lần
+lúc bấm "Xào bài" nên không bao giờ trùng lá, và **chiều lá quyết ngay lúc xào**,
+không đổi khi đặt xuống. Phần thuần nằm ở `deal.js` và có test.
+
+**Nghĩa lá = lá × vị trí.** Lá cho nội dung (`long` / `rev.long`), vị trí cho câu
+hỏi (`lens` trong `spreads.js`), màn chi tiết ghép hai thứ lại. Cố tình **không**
+viết sẵn từng cặp lá × vị trí: 22 × 10 đoạn văn thì vừa khổng lồ vừa nhạt.
 
 ## Quy ước
 
@@ -122,6 +127,9 @@ lá. Phần thuần của việc đặt lá nằm ở `placeAt()` trong `deal.js
   hai lá cùng lúc.
 - Ảnh lá bài tham chiếu theo chỉ số: `DECK[3]` ↔ `public/assets/cards/03.jpg`.
   Chèn lá vào giữa mảng `DECK` là lệch hết ảnh — chỉ nối thêm vào cuối.
+- **`.shell` giữ lề ngang của cả app.** Lớp đi kèm nó (`.page`, `.hero`,
+  `.shuffle`) phải dùng `padding-block`, không dùng shorthand `padding` — dùng
+  shorthand là xoá lề và chữ chạm sát mép màn hình điện thoại.
 - **Dev server của Vite thỉnh thoảng cache nhầm** khi file bị ghi lại nhiều lần
   liên tiếp, và báo `does not provide an export named ...` cho code hoàn toàn
   đúng. Nếu `npm run build` xanh mà trình duyệt vẫn đỏ thì khởi động lại dev
