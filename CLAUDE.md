@@ -15,13 +15,16 @@ Code nằm **ngay ở gốc repo**.
 ```bash
 npm install      # lần đầu
 npm run dev      # dev server, http://localhost:5173
+npm run lint     # ESLint (react-hooks + jsx-a11y)
+npm test         # Vitest, chạy một lượt
 npm run build    # build production vào dist/
 npm run preview  # xem thử bản build
 ```
 
-Chưa có test runner, chưa có linter, chưa có type checking. Cách kiểm tra một
-thay đổi là `npm run build` (bắt lỗi import/cú pháp) rồi mở `npm run dev` xem
-bằng mắt. Đừng báo "đã test" khi mới chỉ build.
+Trước khi báo xong bất kỳ thay đổi nào: **`npm run lint && npm test && npm run
+build`** phải xanh cả ba. Test chỉ phủ phần logic thuần (`src/lib/`) — phần kéo
+thả, animation và bố cục thì vẫn phải mở `npm run dev` xem bằng mắt. Đừng báo
+"đã test" khi mới chỉ build.
 
 `.claude/launch.json` đã cấu hình sẵn cho `preview_start` với tên `tarot`.
 
@@ -38,24 +41,29 @@ library nếu chưa hỏi.
 src/
   main.jsx           điểm vào, mount <App/> trong StrictMode
   App.jsx            router thủ công: đọc r.screen/r.phase rồi chọn màn để vẽ
-  styles.css         toàn bộ CSS (~800 dòng), CSS variables ở :root
+  styles.css         toàn bộ CSS (~830 dòng), CSS variables ở :root
   lib/
     useReading.js    ⭐ trạng thái một lượt trải — nguồn sự thật duy nhất
-    deal.js          shuffleDeck() — Fisher–Yates, trả về mảng chỉ số
-    history.js       đọc/ghi localStorage (key 'tarot-nhatky', tối đa 20 mục)
+    deal.js          shuffleDeck() Fisher–Yates · placeAt() đặt lá (hàm thuần)
+    history.js       đọc/ghi/xoá localStorage (key 'tarot-nhatky', tối đa 20 mục)
+    route.js         hash ↔ màn hình, phân biệt màn mở lại được và màn không
+    assets.js        asset(path) — ghép BASE_URL cho file trong public/
     cardArt.js       cardArt(i) → đường dẫn ảnh mặt lá
     cardBack.jsx     CardBackProvider — context cho ảnh mặt lưng (PNG → SVG)
   data/
     deck.js          DECK: 22 lá Ẩn Chính {num, name, key, short, long}
     spreads.js       SPREADS: 4 kiểu trải, số lá = độ dài mảng `pos`
+    reader.js        READER: nội dung trang "Về reader"
   screens/           8 màn, mỗi màn một file, nhận props thuần
   components/        SiteHeader, SlotGrid, CardFan, HeldCard, FlyingCard
 ```
 
-**Không có router.** Điều hướng là state: `screen` (`home` | `spreads` |
+**Không có router library.** Điều hướng là state: `screen` (`home` | `spreads` |
 `reading` | `detail` | `history` | `about`) cộng `phase` khi `screen === 'reading'`
-(`ask` | `shuffle` | `draw`). Không có URL, không có history API — bấm Back của
-trình duyệt là thoát app.
+(`ask` | `shuffle` | `draw`). [`route.js`](src/lib/route.js) chỉ đồng bộ state đó
+với `location.hash` để nút Back của trình duyệt còn có nghĩa. **Một lượt trải cố
+tình không nằm trong URL** — bàn bài, câu hỏi và thứ tự xào chỉ sống trong bộ
+nhớ, nên `#reading` mở từ tab mới sẽ rơi về màn chủ.
 
 **Toàn bộ trạng thái lượt trải nằm trong [`useReading`](src/lib/useReading.js).**
 `App` chỉ phân phối props xuống; các màn và component đều là hàm thuần theo
@@ -66,7 +74,8 @@ thì sửa `useReading`, đừng rải state ra các màn.
 **Mô hình bàn bài:** `order` là cả bộ đã xào (mảng chỉ số vào `DECK`), `board`
 là mảng theo vị trí, mỗi ô giữ chỉ số lá hoặc `null`. Lá lấy từ chồng **theo thứ
 tự** (`order[số ô đã lấp]`), nhưng đặt vào ô nào là do người dùng chọn — nên
-`board` không lấp tuần tự. Xào một lần lúc bấm "Xào bài" nên không bao giờ trùng lá.
+`board` không lấp tuần tự. Xào một lần lúc bấm "Xào bài" nên không bao giờ trùng
+lá. Phần thuần của việc đặt lá nằm ở `placeAt()` trong `deal.js` và có test.
 
 ## Quy ước
 
@@ -81,17 +90,29 @@ tự** (`order[số ô đã lấp]`), nhưng đặt vào ô nào là do người
 - Số ma thuật của animation đặt thành const có tên ở đầu file kèm comment đơn vị
   (`const HELD_SCALE = 1.95;`, `const DEAL_STEP = 26;`).
 - Phần tử bấm được phải là `<button type="button">` thật kèm `aria-label` mô tả
-  trạng thái, không dùng `<div onClick>`.
+  trạng thái, không dùng `<div onClick>`. Thao tác chuột nào cũng phải có lối
+  bàn phím tương đương.
 - Mọi animation mới phải có nhánh `prefers-reduced-motion: reduce` (CSS ở cuối
   `styles.css`, JS thì `matchMedia` như trong `FlyingCard.jsx`).
+- File trong `public/` phải lấy qua `asset()`, đừng viết chuỗi `'/assets/...'`
+  thẳng vào code — xem mục đường dẫn bên dưới.
+- Effect là để đồng bộ với thứ bên ngoài React, không phải để chỉnh state nội
+  bộ. Cần giá trị dẫn xuất thì tính lúc render (xem `tabStop` trong `CardFan`).
+  ESLint sẽ chặn, và cách sửa đúng là bỏ effect chứ không phải tắt luật.
 
 ## Chỗ dễ vấp
 
 - **`CardFan` dùng transition longhand, không dùng shorthand.** Trộn shorthand
   `transition` với `transitionDelay` trong cùng style object thì React có thể bỏ
   mất delay — mà delay chính là hiệu ứng trải bài lần lượt. Đừng "dọn dẹp" chỗ này.
+- **Quạt bài dùng roving tabindex**: cả 30 lá chỉ chiếm một điểm dừng Tab, mũi
+  tên chạy dọc quạt, Enter/Space đi lối `quickPick`. Đừng đổi thành 30 nút cùng
+  nằm trong chuỗi Tab.
 - **`DrawScreen.pickUp` gắn listener trực tiếp, không qua `useEffect`.** Một cú
   bấm dứt khoát có thể nhả tay trước khi effect kịp chạy và lá sẽ kẹt trên tay.
+- **Phân biệt kéo với bấm bằng khoảng cách so với điểm bấm xuống**, không dùng
+  `e.movementX` — trình duyệt không có thuộc tính đó sẽ cho `NaN` và mọi cú kéo
+  thành ra bấm gọn.
 - **`FlyingCard` có `setTimeout` dự phòng** vì tab bị ẩn thì `animation.onfinish`
   không chạy. Giữ nguyên.
 - **`slotFaceRect` / `emptySlotAt` đọc DOM trực tiếp** (`getBoundingClientRect`,
@@ -101,6 +122,20 @@ tự** (`order[số ô đã lấp]`), nhưng đặt vào ô nào là do người
   hai lá cùng lúc.
 - Ảnh lá bài tham chiếu theo chỉ số: `DECK[3]` ↔ `public/assets/cards/03.jpg`.
   Chèn lá vào giữa mảng `DECK` là lệch hết ảnh — chỉ nối thêm vào cuối.
+- **Dev server của Vite thỉnh thoảng cache nhầm** khi file bị ghi lại nhiều lần
+  liên tiếp, và báo `does not provide an export named ...` cho code hoàn toàn
+  đúng. Nếu `npm run build` xanh mà trình duyệt vẫn đỏ thì khởi động lại dev
+  server, đừng đi sửa code.
+
+## Đường dẫn asset
+
+Vite chỉ viết lại đường dẫn nó **nhìn thấy lúc build** — trong `index.html` và
+trong các `import`. Chuỗi dựng lúc chạy thì nó không đụng tới, nên phải qua
+[`asset()`](src/lib/assets.js) để ghép `import.meta.env.BASE_URL`. Không có bước
+này thì bản deploy ở đường dẫn con (`/tarot/` trên GitHub Pages) mất sạch ảnh.
+
+Trong `index.html` thì dùng `%BASE_URL%` — Vite thay lúc build, kể cả trong
+thuộc tính `content` của thẻ `<meta>` mà nó không tự viết lại.
 
 ## Ảnh và bản quyền
 
@@ -111,6 +146,15 @@ về `public/assets/cards/` (~4,5 MB). Nguồn và giấy phép ghi trong
 
 Mặt lưng lá: `cardBack.jsx` thử tải `public/assets/card-back.png` trước, không có
 thì rơi về `card-back.svg`. Muốn dùng ảnh thật chỉ cần bỏ file PNG vào, không sửa code.
+
+## CI và deploy
+
+- [`ci.yml`](.github/workflows/ci.yml) chạy lint + test + build cho mọi push lên
+  `main` và mọi PR.
+- [`deploy.yml`](.github/workflows/deploy.yml) build với `BASE_PATH=/<tên-repo>/`
+  rồi đẩy lên GitHub Pages.
+- Deploy chỉ chạy được sau khi bật Pages trong Settings → Pages → Source:
+  **GitHub Actions**. Đó là thao tác trong giao diện GitHub, không nằm trong repo.
 
 ## Git
 

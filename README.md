@@ -13,7 +13,14 @@ npm install
 npm run dev
 ```
 
-`npm run build` để dựng bản production vào `dist/`.
+```bash
+npm run lint   # ESLint: react-hooks + jsx-a11y
+npm test       # Vitest, phủ phần logic thuần trong src/lib/
+npm run build  # bản production vào dist/
+```
+
+Đẩy lên GitHub Pages tự động qua [deploy.yml](.github/workflows/deploy.yml) mỗi
+lần push `main` — cần bật Settings → Pages → Source: GitHub Actions một lần.
 
 ## Giao diện
 
@@ -24,6 +31,10 @@ giấy sáng. Co giãn xuống tablet (1 cột, lưới 2 cột) và điện tho
 `home → spreads → ask → shuffle → draw → detail`, cộng hai nhánh `history` và
 `about`. Toàn bộ trạng thái một lượt trải nằm trong
 [`useReading`](src/lib/useReading.js); `App` chỉ chọn màn hình để vẽ.
+
+Mỗi màn có một hash trên URL ([route.js](src/lib/route.js)) nên nút Back của
+trình duyệt hoạt động và tải lại trang giữ nguyên chỗ đang đứng. Riêng một lượt
+trải thì không nằm trong URL — bàn bài chỉ sống trong bộ nhớ.
 
 | Màn | File |
 | --- | --- |
@@ -63,6 +74,10 @@ giữ một nhịp rồi về ô trống đầu tiên.
 
 Trong lúc lá đang bay, ô đích vẫn giữ vẻ trống để không hiện thành hai lá.
 
+**Bằng bàn phím**: Tab tới quạt bài (cả 30 lá chỉ chiếm một điểm dừng Tab), mũi
+tên trái/phải chạy dọc quạt, Enter hoặc Space rút lá đang chọn theo lối rút
+nhanh. Sau đó Tab tới từng ô để lật và đọc.
+
 ## Ảnh và logo
 
 - **Logo** — [`public/assets/logo.svg`](public/assets/logo.svg), vẽ riêng cho app
@@ -100,7 +115,8 @@ Về API: `tarotapi.dev` chỉ trả **chữ** (nghĩa xuôi/ngược, mô tả)
   trải bài, rút bài chỉ là kéo lên rồi biến mất).
 - **Xào bài là thật.** Cả bộ được xào một lần (Fisher–Yates) lúc bấm "Xào bài",
   mỗi lần rút lấy lá kế tiếp trên chồng — không còn phụ thuộc ngẫu nhiên giữa chừng.
-- **Dùng `<button>` thật** kèm `aria-label` cho ô bài và thẻ kiểu trải.
+- **Dùng `<button>` thật** kèm `aria-label` cho ô bài, thẻ kiểu trải và cả lá
+  trong quạt — rút bài bằng bàn phím được, không chỉ bằng chuột.
 - **`prefers-reduced-motion`**: xào bài chậm lại, lá bay rút còn 160 ms, bỏ hiệu
   ứng lật và độ trễ trải quạt.
 

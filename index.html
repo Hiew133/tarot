@@ -5,13 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tarot — ngồi xuống, rút một lá</title>
 <meta name="description" content="Trải bài tarot online. Không phán quyết, không bói toán cao siêu — chỉ là một cách để nhìn lại chuyện đang xảy ra với mình.">
+<meta name="theme-color" content="#101823">
 <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+
+<!-- Chia sẻ link ra ngoài. %BASE_URL% để bản deploy ở đường dẫn con vẫn trỏ đúng. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tarot — ngồi xuống, rút một lá">
+<meta property="og:description" content="Trải bài tarot online. Không phán quyết, không bói toán cao siêu — chỉ là một cách để nhìn lại chuyện đang xảy ra với mình.">
+<meta property="og:image" content="%BASE_URL%assets/cards/21.jpg">
+<meta property="og:image:width" content="500">
+<meta property="og:image:height" content="839">
+<meta property="og:image:alt" content="Lá Thế Giới trong bộ Rider–Waite–Smith">
+<meta property="og:locale" content="vi_VN">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- Font tải không chặn render: nạp như stylesheet của bản in rồi đổi sang màn
+     hình khi xong. Không có JS thì <noscript> nạp kiểu thường. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+</noscript>
 </head>
 <body>
 <div id="root"></div>
+<noscript>
+<p style="max-width:34em;margin:12vh auto;padding:0 24px;font:16px/1.6 Georgia,serif;color:#f4ead4;text-align:center">
+Trang này cần JavaScript để xào và trải bài. Bật JavaScript rồi tải lại giúp mình nhé.
+</p>
+</noscript>
 <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
