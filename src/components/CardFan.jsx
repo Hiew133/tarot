@@ -27,6 +27,10 @@ const EDGE_ROOM = 100;
  * Quạt chỉ lo phần bày bài và báo ra "vừa bốc lá nào" — chuyện lá đi đâu sau đó
  * do bàn bài (DrawScreen) cầm, vì chỉ nó mới biết các ô.
  *
+ * Đặt đủ bài rồi thì quạt tự cất đi (`disabled`): không còn gì để bốc nữa, mà
+ * để nguyên thì mấy chục lá thừa tranh chỗ với khối nút "Đọc kết quả / Xong" và
+ * phủ lên trên.
+ *
  * Bàn phím: cả quạt chỉ chiếm **một** điểm dừng Tab (roving tabindex), rồi mũi
  * tên trái/phải chạy dọc quạt, Enter hoặc Space rút lá đang chọn. Ba mươi nút
  * cùng nằm trong chuỗi Tab thì đúng chuẩn nhưng dùng thì khổ.
@@ -140,7 +144,7 @@ export default function CardFan({ taken, grabbed, disabled, onPickUp, onQuickPic
 
   return (
     <div
-      className="fan"
+      className={`fan${disabled ? ' fan--done' : ''}`}
       ref={rootRef}
       role="group"
       aria-label="Quạt bài úp — mũi tên trái/phải để chọn lá, Enter để rút"

@@ -635,6 +635,7 @@ body {
   margin-top: auto;
   touch-action: none;
   user-select: none;
+  transition: height .5s cubic-bezier(.2, .8, .2, 1), opacity .35s ease;
 
   /* Quạt bài là chỗ duy nhất được co lại khi thiếu chiều cao (xem .table__head,
      .slots, .hint đều flex-shrink: 0). Lá neo theo đáy khung nên co phần trên
@@ -671,6 +672,16 @@ body {
   border-radius: 7px;
   -webkit-user-drag: none;
 }
+/* Đặt đủ bài thì cất quạt đi, nhường chỗ cho khối nút kết thúc.
+   Viết .fan.fan--done chứ không .fan--done: mấy @media chiều cao ở cuối file
+   cũng đặt height cho .fan, cùng độ đặc hiệu mà nằm sau nên sẽ thắng. */
+.fan.fan--done {
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
 .fan__card--live:hover,
 .fan__card--live:focus-visible { filter: brightness(1.12) drop-shadow(0 0 14px rgba(201, 162, 39, .5)); }
 .fan__card:focus-visible { outline: 3px solid var(--gold-soft); outline-offset: 4px; }
@@ -990,7 +1001,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .chip { transition: none; }
-  .flying-card, .held-card { transition: none; }
+  .flying-card, .held-card, .fan { transition: none; }
   .shuffle__card { animation-duration: 3.2s; animation-timing-function: ease-in-out; }
   .slot--up .slot__face, .slot--down .slot__face {
   height: calc(var(--slot-h) * var(--slot-scale)); animation: none; }
