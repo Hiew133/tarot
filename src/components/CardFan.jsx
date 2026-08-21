@@ -7,6 +7,15 @@ const ARC_DEPTH = 58;        // độ võng của vòng cung (px)
 const HOVER_LIFT = 34;       // lá nhô lên khi rê chuột (px)
 const DEAL_STEP = 26;        // độ trễ trải từng lá (ms)
 const DEAL_SETTLE = 700;
+// Chỗ phải chừa ở hai mép quạt cho lá ngoài cùng.
+//
+// Không phải nửa bề ngang lá: lá nghiêng MAX_ANGLE quanh gốc 50% 92%, tức quay
+// quanh một điểm gần chân lá, nên góc trên của nó văng ra xa hơn nhiều. Với lá
+// 78 × 126 nghiêng 33°, góc xa nhất cách gốc khoảng 96px.
+//
+// Chừa thiếu thì hai lá rìa thò khỏi khung và đẻ ra thanh cuộn ngang — mà thanh
+// đó lại ăn mất chiều cao, làm trang cuộn dọc theo và quạt bài tụt khỏi màn hình.
+const EDGE_ROOM = 100;
 
 /**
  * Quạt bài trải ngang đáy bàn.
@@ -38,7 +47,8 @@ export default function CardFan({ taken, grabbed, disabled, onPickUp, onQuickPic
   useLayoutEffect(() => {
     const el = rootRef.current;
     if (!el) return undefined;
-    const measure = () => setSpreadX(Math.min(el.clientWidth * 0.44, 430));
+    const measure = () =>
+      setSpreadX(Math.min(el.clientWidth * 0.44, el.clientWidth / 2 - EDGE_ROOM, 430));
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);

@@ -2,7 +2,13 @@ import { cardArt } from '../lib/cardArt.js';
 import { readDraw } from '../lib/deal.js';
 import { useCardBack } from '../lib/cardBack.jsx';
 
-/** Bàn web rộng nên lá to hẳn; bộ trải nhiều lá thì thu nhỏ lại cho vừa hàng. */
+/**
+ * Bàn web rộng nên lá to hẳn; bộ trải nhiều lá thì thu nhỏ lại cho vừa hàng.
+ *
+ * Đây là kích thước **gốc**, tính theo số lá. CSS còn co thêm hai chiều nữa để
+ * cả bàn bài lọt trong một màn hình: `--slot-scale` theo chiều cao cửa sổ, và
+ * một mức trần theo bề ngang để `--slot-n` lá luôn đứng vừa một hàng.
+ */
 function cardSize(count) {
   if (count <= 3) return { width: 148, height: 236 };
   if (count <= 5) return { width: 124, height: 198 };
@@ -32,7 +38,10 @@ export default function SlotGrid({
   const size = cardSize(positions.length);
 
   return (
-    <div className="slots">
+    <div
+      className="slots"
+      style={{ '--slot-w': `${size.width}px`, '--slot-n': positions.length }}
+    >
       {positions.map((position, i) => {
         const label = position.name;
         const draw = i === landingIndex ? null : board[i];
@@ -51,7 +60,7 @@ export default function SlotGrid({
             type="button"
             className={classes.join(' ')}
             data-slot={i}
-            style={{ width: size.width, cursor: has ? 'pointer' : 'default' }}
+            style={{ cursor: has ? 'pointer' : 'default' }}
             disabled={!has}
             aria-label={
               !has ? `${label} — ô trống`
@@ -67,10 +76,7 @@ export default function SlotGrid({
           >
             <div
               className="slot__face"
-              style={{
-                height: size.height,
-                ...(state === 'down' ? { backgroundImage: `url(${cardBack})` } : null),
-              }}
+              style={state === 'down' ? { backgroundImage: `url(${cardBack})` } : undefined}
             >
               {isOpen && (
                 <img
@@ -83,12 +89,14 @@ export default function SlotGrid({
               )}
             </div>
             <div className="slot__label">{label}</div>
-            {isOpen && (
-              <div className="slot__card">
-                {drawn.card.num} · {drawn.card.name}
-                {drawn.rev && <span className="slot__rev">ngược</span>}
-              </div>
-            )}
+            <div className="slot__card">
+              {isOpen && (
+                <>
+                  {drawn.card.num} · {drawn.card.name}
+                  {drawn.rev && <span className="slot__rev">ngược</span>}
+                </>
+              )}
+            </div>
           </button>
         );
       })}

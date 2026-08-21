@@ -430,26 +430,40 @@ body {
 
 /* ── Bàn bài ───────────────────────────────────────────── */
 
+/* Cả bàn bài phải nằm gọn trong một màn hình: thấy ô bài và quạt bài cùng lúc,
+   không phải kéo xuống mới biết bốc ở đâu. Vì thế mọi khối ở đây đều để chật tay,
+   và lá co lại theo chiều cao cửa sổ (xem --slot-scale). */
 .table {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - var(--header-h));
+  min-height: calc(100dvh - var(--header-h));
+  /* Có trần thì phần dôi ra mới có chỗ để trừ — và chỗ bị trừ là quạt bài.
+     Chỉ min-height thôi thì khung cứ phình theo nội dung và trang lại cuộn. */
+  max-height: calc(100dvh - var(--header-h));
 }
+/* Mấy khối này giữ nguyên chiều cao; thiếu chỗ thì trừ vào quạt bài. */
+.table__head,
+.slots,
+.hint,
+.table__actions { flex-shrink: 0; }
+
 .table__head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
-  padding: 28px 0 4px;
+  padding: 16px 0 2px;
   flex-wrap: wrap;
 }
+.table__head .h2 { font-size: clamp(23px, 2.1vw, 30px); }
+.table__head .back { padding-bottom: 10px; }
 .table__q {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 17px;
+  font-size: 16px;
   color: var(--on-dark-soft);
-  margin-top: 8px;
+  margin-top: 5px;
   text-wrap: pretty;
 }
 .table__progress {
@@ -461,12 +475,16 @@ body {
 }
 
 .slots {
+  /* Kích thước gốc của lá do SlotGrid quyết (nó biết bộ trải mấy lá); phần co
+     theo cửa sổ thì để CSS lo, xem @media max-height ở cuối file. */
+  --slot-scale: 1;
+  --slot-gap: 18px;
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
+  gap: var(--slot-gap);
   justify-content: center;
   align-items: flex-start;
-  padding: 30px 0 8px;
+  padding: 16px 0 6px;
 }
 .slot {
   background: none;
@@ -475,8 +493,16 @@ body {
   font-family: inherit;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  /* Ép cả bộ trải đứng vừa một hàng, nhưng không cho lá bé quá mức đọc được —
+     bé hơn sàn thì thà cho xuống hàng. Trên khung rộng thì bỏ sàn này đi, xem
+     @media min-width bên dưới. */
+  width: max(76px, min(
+    calc(var(--slot-w) * var(--slot-scale)),
+    calc((100% - (var(--slot-n) - 1) * var(--slot-gap)) / var(--slot-n))
+  ));
 }
+.slot__face { aspect-ratio: 148 / 236; }
 .slot__face {
   border-radius: 12px;
   display: flex;
@@ -486,17 +512,20 @@ body {
   transition: transform .22s ease, box-shadow .22s ease;
 }
 .slot--empty .slot__face {
+  height: calc(var(--slot-h) * var(--slot-scale));
   border: 1px dashed rgba(201, 162, 39, .38);
   background: rgba(255, 255, 255, .03);
   transition: border-color .18s ease, background .18s ease, transform .18s ease;
 }
 /* Đang cầm bài: các ô trống nổi lên cho thấy chỗ nào thả được. */
 .slot--armed .slot__face {
+  height: calc(var(--slot-h) * var(--slot-scale));
   border-color: rgba(201, 162, 39, .7);
   background: rgba(201, 162, 39, .07);
 }
 /* Ô đang chờm tới: thả tay là đặt xuống đây. */
 .slot--target .slot__face {
+  height: calc(var(--slot-h) * var(--slot-scale));
   border-style: solid;
   border-color: var(--gold);
   background: rgba(201, 162, 39, .18);
@@ -522,29 +551,36 @@ body {
   color: var(--gold-soft);
   vertical-align: 2px;
 }
-.slot--up .slot__face { padding: 0; overflow: hidden; }
+.slot--up .slot__face {
+  height: calc(var(--slot-h) * var(--slot-scale)); padding: 0; overflow: hidden; }
+/* Luôn chiếm chỗ, kể cả lúc ô còn úp — nếu không thì mỗi cú lật lại đẩy cả
+   quạt bài tụt xuống một nhịp. */
 .slot__card {
   font-family: var(--font-serif);
   font-size: 15px;
   color: var(--on-dark);
   text-align: center;
   margin-top: -2px;
+  min-height: 22px;
   text-wrap: pretty;
 }
 .slot--down .slot__face {
+  height: calc(var(--slot-h) * var(--slot-scale));
   background-size: cover;
   background-position: center;
   box-shadow: 0 14px 30px rgba(0, 0, 0, .5);
   animation: landCard .34s cubic-bezier(.3, .8, .35, 1);
 }
 .slot--up .slot__face {
+  height: calc(var(--slot-h) * var(--slot-scale));
   background: var(--paper-raised);
   border: 1px solid var(--gold);
   box-shadow: 0 14px 30px rgba(0, 0, 0, .4);
   animation: riseIn .35s ease;
 }
 .slot--down:hover .slot__face,
-.slot--up:hover .slot__face { transform: translateY(-7px); box-shadow: 0 22px 40px rgba(0, 0, 0, .55); }
+.slot--up:hover .slot__face {
+  height: calc(var(--slot-h) * var(--slot-scale)); transform: translateY(-7px); box-shadow: 0 22px 40px rgba(0, 0, 0, .55); }
 .slot__name { font-family: var(--font-serif); line-height: 1.15; color: var(--ink); text-wrap: pretty; }
 .slot__num { font-family: var(--font-mono); font-size: 10px; color: var(--gold); }
 .slot__label {
@@ -568,8 +604,8 @@ body {
 
 .hint {
   text-align: center;
-  padding: 10px 0 4px;
-  min-height: 76px;
+  padding: 6px 0 2px;
+  min-height: 62px;
 }
 .hint__title {
   font-family: var(--font-mono);
@@ -594,16 +630,29 @@ body {
 /* Quạt bài */
 .fan {
   position: relative;
-  height: 250px;
+  /* Đủ chứa cả vòng cung lẫn lúc lá nhô lên khi rê chuột. */
+  height: 240px;
   margin-top: auto;
   touch-action: none;
   user-select: none;
+
+  /* Quạt bài là chỗ duy nhất được co lại khi thiếu chiều cao (xem .table__head,
+     .slots, .hint đều flex-shrink: 0). Lá neo theo đáy khung nên co phần trên
+     không làm mất lá nào, chỉ mất khoảng trống. */
+  flex-shrink: 1;
+  min-height: 0;
+
+  /* Lá neo cao hơn đáy khung đúng bằng phần vòng cung võng xuống: lá ngoài cùng
+     vừa võng theo u² vừa nghiêng 33°, nên mép dưới của nó thấp hơn điểm neo một
+     quãng. Neo ở 0 thì cả cung thò xuống dưới khung và trang sinh ra thanh cuộn
+     thừa — đúng cái làm người dùng phải kéo một nhịp mới thấy bài. */
+  --fan-spill: 78px;
 }
 /* Là <button> thật để bàn phím rút được bài — nên phải gột sạch nền/viền mặc định. */
 .fan__card {
   position: absolute;
   left: 50%;
-  bottom: 0;
+  bottom: var(--fan-spill);
   width: 78px;
   margin-left: -39px;
   padding: 0;
@@ -881,6 +930,41 @@ body {
 .slot:focus-visible,
 .spread:focus-visible { outline-offset: 5px; }
 
+/* Khung đủ rộng thì bỏ sàn: mười lá của Celtic Cross thà bé còn hơn xuống hàng
+   thứ hai rồi đẩy quạt bài khuất khỏi màn hình. Trên điện thoại thì ngược lại,
+   giữ sàn và cho cuộn — ở đó cuộn là chuyện bình thường. */
+@media (min-width: 760px) {
+  .slot {
+    width: min(
+      calc(var(--slot-w) * var(--slot-scale)),
+      calc((100% - (var(--slot-n) - 1) * var(--slot-gap)) / var(--slot-n))
+    );
+  }
+}
+
+/* ── Cửa sổ thấp ───────────────────────────────────────── */
+
+/* Laptop màn 13" hay cửa sổ bị thu nhỏ: thà lá bé đi còn hơn đẩy quạt bài
+   xuống dưới mép màn hình. */
+@media (max-height: 820px) {
+  .slots { --slot-scale: .88; }
+}
+/* Từ đây trở xuống khung quạt hẹp hơn cả vòng cung, nên lúc rê chuột lá nhô lên
+   sẽ chờm nhẹ vào khung gợi ý. Vẫn hơn là đẩy cả quạt bài xuống dưới mép màn
+   hình — mà đó mới là thứ khiến người dùng không biết bốc bài ở đâu. */
+@media (max-height: 720px) {
+  .slots { --slot-scale: .74; padding-top: 10px; }
+  .hint { min-height: 48px; }
+  .table__head { padding-top: 10px; }
+  .fan { height: 200px; }
+}
+@media (max-height: 620px) {
+  .slots { --slot-scale: .6; }
+  .fan { height: 162px; }
+  .hint { min-height: 42px; }
+  .table__q { display: none; }
+}
+
 /* ── Màn hình hẹp ──────────────────────────────────────── */
 
 @media (max-width: 900px) {
@@ -908,7 +992,8 @@ body {
   .chip { transition: none; }
   .flying-card, .held-card { transition: none; }
   .shuffle__card { animation-duration: 3.2s; animation-timing-function: ease-in-out; }
-  .slot--up .slot__face, .slot--down .slot__face { animation: none; }
+  .slot--up .slot__face, .slot--down .slot__face {
+  height: calc(var(--slot-h) * var(--slot-scale)); animation: none; }
   .fan__card { transition-duration: .12s !important; transition-delay: 0ms !important; }
   .page { animation: none; }
   .hero__card { transition: none; }
