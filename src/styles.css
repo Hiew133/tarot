@@ -40,6 +40,10 @@
   --font-sans:  'DM Sans', system-ui, sans-serif;
   --font-mono:  'DM Mono', ui-monospace, monospace;
 
+  /* Bóng đổ mang sắc mặt bàn chứ không đen tuyền — đen thuần trên nền chàm
+     trông như vết bẩn, còn bóng cùng tông thì ra chiều sâu. */
+  --shade: 7, 13, 25;
+
   --shell: 1180px;
   --header-h: 74px;
 }
@@ -62,6 +66,12 @@ body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
+
+  /* Chặn cuộn ngang do phần trang trí tràn ra: năm lá bài ở trang chủ cố tình
+     xoè rộng hơn khung và trên điện thoại chúng thò ra 44px. Dùng `clip` chứ
+     không `hidden` — `hidden` biến đây thành vùng cuộn và làm hỏng
+     position: sticky của thanh đầu trang. */
+  overflow-x: clip;
   background:
     radial-gradient(1100px 620px at 50% -8%, #24405f 0%, transparent 62%),
     radial-gradient(760px 520px at 88% 104%, #1d3450 0%, transparent 60%),
@@ -79,6 +89,20 @@ body {
 }
 
 .main { flex: 1; display: flex; flex-direction: column; }
+/* Nhận focus từ skip-link nhưng không tự vẽ vòng focus quanh cả trang. */
+.main:focus { outline: none; }
+
+/* Một lớp hạt mịn phủ toàn trang. Nền tối phẳng lì trông như file vector; hạt
+   nhiễu làm nó ra chất mặt bàn phủ nỉ. Rất nhẹ tay — thấy được thì là quá đậm. */
+.app::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: .04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 
 /* ── Thanh đầu trang ───────────────────────────────────── */
 
@@ -156,15 +180,21 @@ body {
   font-family: var(--font-serif);
   font-size: clamp(38px, 4.6vw, 62px);
   line-height: 1.05;
+  /* Chữ càng to thì khoảng cách giữa các con chữ càng phải siết lại, nếu không
+     tiêu đề nhìn lỏng lẻo. */
+  letter-spacing: -.022em;
   margin: 16px 0 0;
   font-weight: 400;
+  text-wrap: balance;
 }
 .h2 {
   font-family: var(--font-serif);
   font-size: clamp(28px, 3vw, 40px);
   line-height: 1.12;
+  letter-spacing: -.016em;
   margin: 0;
   font-weight: 400;
+  text-wrap: balance;
 }
 
 .lede {
@@ -258,7 +288,7 @@ body {
   background: var(--paper);
   border-radius: 20px;
   color: var(--ink);
-  box-shadow: 0 30px 70px rgba(0, 0, 0, .38);
+  box-shadow: 0 30px 70px rgba(var(--shade), .38);
   overflow: hidden;
 }
 
@@ -282,7 +312,7 @@ body {
   position: absolute;
   width: 224px;
   border-radius: 14px;
-  box-shadow: 0 34px 60px rgba(0, 0, 0, .55);
+  box-shadow: 0 34px 60px rgba(var(--shade), .55);
   transition: transform .6s cubic-bezier(.2, .8, .2, 1);
 }
 .hero__card:nth-child(1) { transform: rotate(-16deg) translate(-118px, 14px); }
@@ -303,7 +333,13 @@ body {
   padding-top: 28px;
   border-top: 1px solid var(--line-dark);
 }
-.stat__n { font-family: var(--font-serif); font-size: 30px; color: var(--gold); }
+/* Số liệu dùng chữ số cùng bề ngang để các cột thẳng hàng nhau. */
+.stat__n {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
 .stat__l {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -322,6 +358,8 @@ body {
   margin-top: 40px;
 }
 .spread {
+  position: relative;
+  overflow: hidden;
   background: var(--paper);
   border: 1px solid transparent;
   border-radius: 18px;
@@ -337,20 +375,24 @@ body {
 .spread:hover {
   transform: translateY(-6px);
   border-color: var(--gold);
-  box-shadow: 0 26px 50px rgba(0, 0, 0, .42);
+  box-shadow: 0 26px 50px rgba(var(--shade), .42);
 }
+/* Số lá là thứ phân biệt bốn thẻ này với nhau, nên cho nó làm nhân vật chính:
+   một chữ số lớn nằm chìm ở góc thay vì cái huy hiệu tròn bé tí ai cũng vẽ. */
 .spread__count {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: var(--paper-sunk);
+  position: absolute;
+  top: -14px;
+  right: 6px;
+  font-family: var(--font-serif);
+  font-size: 118px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
   color: var(--rust);
-  font-family: var(--font-mono);
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  opacity: .1;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
 }
+.spread:hover .spread__count { opacity: .16; transform: translateY(3px); }
 .spread__name { font-family: var(--font-serif); font-size: 23px; color: var(--ink); }
 .spread__desc {
   font-size: 14px;
@@ -406,7 +448,7 @@ body {
   inset: 0;
   width: 100%;
   border-radius: 12px;
-  box-shadow: 0 12px 26px rgba(0, 0, 0, .5);
+  box-shadow: 0 12px 26px rgba(var(--shade), .5);
   transform-origin: 50% 62%;
   animation: riffle 1.5s cubic-bezier(.45, .02, .3, 1) infinite both;
   animation-delay: calc(var(--i) * 42ms);
@@ -468,6 +510,7 @@ body {
 }
 .table__progress {
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 12px;
   letter-spacing: .12em;
   color: var(--gold);
@@ -530,7 +573,7 @@ body {
   border-color: var(--gold);
   background: rgba(201, 162, 39, .18);
   transform: scale(1.05);
-  box-shadow: 0 0 0 3px rgba(201, 162, 39, .25), 0 18px 36px rgba(0, 0, 0, .45);
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, .25), 0 18px 36px rgba(var(--shade), .45);
 }
 .slot--armed .slot__label { color: var(--gold); }
 
@@ -568,19 +611,19 @@ body {
   height: calc(var(--slot-h) * var(--slot-scale));
   background-size: cover;
   background-position: center;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, .5);
+  box-shadow: 0 14px 30px rgba(var(--shade), .5);
   animation: landCard .34s cubic-bezier(.3, .8, .35, 1);
 }
 .slot--up .slot__face {
   height: calc(var(--slot-h) * var(--slot-scale));
   background: var(--paper-raised);
   border: 1px solid var(--gold);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, .4);
+  box-shadow: 0 14px 30px rgba(var(--shade), .4);
   animation: riseIn .35s ease;
 }
 .slot--down:hover .slot__face,
 .slot--up:hover .slot__face {
-  height: calc(var(--slot-h) * var(--slot-scale)); transform: translateY(-7px); box-shadow: 0 22px 40px rgba(0, 0, 0, .55); }
+  height: calc(var(--slot-h) * var(--slot-scale)); transform: translateY(-7px); box-shadow: 0 22px 40px rgba(var(--shade), .55); }
 .slot__name { font-family: var(--font-serif); line-height: 1.15; color: var(--ink); text-wrap: pretty; }
 .slot__num { font-family: var(--font-mono); font-size: 10px; color: var(--gold); }
 .slot__label {
@@ -662,7 +705,7 @@ body {
   display: block;
   border-radius: 7px;
   transform-origin: 50% 92%;
-  box-shadow: 0 14px 26px rgba(0, 0, 0, .5);
+  box-shadow: 0 14px 26px rgba(var(--shade), .5);
   -webkit-user-drag: none;
   will-change: transform;
 }
@@ -694,7 +737,7 @@ body {
   pointer-events: none;
   z-index: 70;
   will-change: transform;
-  box-shadow: 0 34px 60px rgba(0, 0, 0, .65);
+  box-shadow: 0 34px 60px rgba(var(--shade), .65);
   transition: transform .18s cubic-bezier(.2, .8, .2, 1), filter .18s ease;
 }
 .held-card--ready { filter: drop-shadow(0 0 18px rgba(201, 162, 39, .75)); }
@@ -707,7 +750,7 @@ body {
   pointer-events: none;
   z-index: 60;
   will-change: transform;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, .6);
+  box-shadow: 0 30px 60px rgba(var(--shade), .6);
 }
 
 /* ── Chi tiết lá ───────────────────────────────────────── */
@@ -775,7 +818,7 @@ body {
 .detail__art {
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, .5);
+  box-shadow: 0 30px 60px rgba(var(--shade), .5);
   background: var(--paper-sunk);
   aspect-ratio: 402 / 650;
   display: flex;
@@ -893,15 +936,21 @@ body {
 .about__avatar {
   aspect-ratio: 1;
   border-radius: 50%;
-  border: 1px solid rgba(201, 162, 39, .4);
-  background: repeating-linear-gradient(135deg, #1c2b40 0 8px, #203449 8px 16px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--on-dark-faint);
-  text-align: center;
+  border: 1px solid rgba(201, 162, 39, .35);
+  background:
+    radial-gradient(120% 120% at 30% 22%, rgba(201, 162, 39, .16) 0%, transparent 58%),
+    linear-gradient(160deg, var(--table-3) 0%, var(--table) 78%);
+  box-shadow: inset 0 1px 0 rgba(232, 195, 78, .18), 0 26px 50px rgba(var(--shade), .45);
+  display: grid;
+  place-items: center;
+}
+.about__mono {
+  font-family: var(--font-serif);
+  font-size: clamp(52px, 7vw, 78px);
+  line-height: 1;
+  letter-spacing: .02em;
+  color: var(--gold-soft);
+  opacity: .9;
 }
 .about__pull {
   font-family: var(--font-serif);
@@ -933,6 +982,61 @@ body {
   flex-wrap: wrap;
 }
 .log__head .lede { margin-bottom: 0; }
+
+/* ── Chân trang ────────────────────────────────────────── */
+
+.footer { border-top: 1px solid var(--line-dark); margin-top: auto; }
+.footer__inner { padding-block: 26px 34px; display: grid; gap: 8px; }
+.footer__line {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--on-dark-faint);
+  max-width: 68ch;
+  text-wrap: pretty;
+}
+.footer__line--quiet { color: var(--on-dark-faint); opacity: .78; }
+.footer__link { color: var(--on-dark-soft); text-underline-offset: 3px; }
+.footer__link:hover { color: var(--gold-soft); }
+
+/* Ẩn cho tới khi Tab tới, rồi trượt xuống hiện ra. */
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 90;
+  transform: translateY(-160%);
+  padding: 11px 18px;
+  border-radius: 10px;
+  background: var(--gold);
+  color: var(--table);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform .18s ease;
+}
+.skip-link:focus-visible { transform: translateY(0); }
+
+/* ── Phản hồi khi bấm ──────────────────────────────────── */
+
+/* Trước đây chỉ .btn có trạng thái nhấn. Thiếu nó thì mọi thứ bấm vào đều thấy
+   "chết" — mắt không nhận được xác nhận nào là cú bấm đã ăn. */
+.spread:active { transform: translateY(-2px) scale(.995); }
+.nav__item:active,
+.pill:active,
+.back:active,
+.btn--quiet:active { transform: translateY(1px); }
+.brand:active { transform: scale(.985); }
+.slot:not(:disabled):active .slot__face { transform: translateY(-3px) scale(.99); }
+.fan__card--live:active { cursor: grabbing; }
+
+.pill,
+.back,
+.brand,
+.btn--quiet { transition: transform .12s ease, color .15s ease; }
+.pill { transition: transform .12s ease, border-color .15s ease, color .15s ease; }
 
 /* ── Vòng focus ────────────────────────────────────────── */
 

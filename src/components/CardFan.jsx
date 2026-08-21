@@ -16,6 +16,10 @@ const DEAL_SETTLE = 700;
 // Chừa thiếu thì hai lá rìa thò khỏi khung và đẻ ra thanh cuộn ngang — mà thanh
 // đó lại ăn mất chiều cao, làm trang cuộn dọc theo và quạt bài tụt khỏi màn hình.
 const EDGE_ROOM = 100;
+// Lá nằm thấp bao nhiêu lúc còn xếp chồng, trước khi trải ra. Phải nhỏ hơn hoặc
+// bằng --fan-spill trong CSS, nếu không cả chồng thò xuống dưới khung quạt và
+// trang nhá thanh cuộn suốt hơn một giây đầu rồi mới hết.
+const STACK_DROP = 70;
 
 /**
  * Quạt bài trải ngang đáy bàn.
@@ -158,7 +162,7 @@ export default function CardFan({ taken, grabbed, disabled, onPickUp, onQuickPic
         const resting =
           `translateX(${x}px) translateY(${y - (lifted ? HOVER_LIFT : 0)}px) ` +
           `rotate(${angle}deg) scale(${lifted ? 1.07 : 1})`;
-        const stacked = 'translateX(0px) translateY(120px) rotate(0deg) scale(.94)';
+        const stacked = `translateX(0px) translateY(${STACK_DROP}px) rotate(0deg) scale(.94)`;
 
         // Longhand chứ không dùng shorthand `transition`: trộn hai loại trong
         // cùng style object thì React có thể bỏ mất transitionDelay, mà delay

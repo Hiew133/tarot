@@ -55,7 +55,7 @@ src/
     spreads.js       SPREADS: 4 kiểu trải; mỗi vị trí có {name, lens}
     reader.js        READER: nội dung trang "Về reader"
   screens/           8 màn, mỗi màn một file, nhận props thuần
-  components/        SiteHeader, SlotGrid, CardFan, HeldCard, FlyingCard
+  components/        SiteHeader, SiteFooter, SlotGrid, CardFan, HeldCard, FlyingCard
 ```
 
 **Không có router library.** Điều hướng là state: `screen` (`home` | `spreads` |
@@ -94,6 +94,10 @@ viết sẵn từng cặp lá × vị trí: 22 × 10 đoạn văn thì vừa kh�
   CSS variable ở `:root`, **đừng hardcode mã màu mới**.
 - Số ma thuật của animation đặt thành const có tên ở đầu file kèm comment đơn vị
   (`const HELD_SCALE = 1.95;`, `const DEAL_STEP = 26;`).
+- **Bóng đổ dùng `rgba(var(--shade), …)`**, không dùng `rgba(0,0,0,…)`. Đen tuyền
+  trên nền chàm trông như vết bẩn; bóng cùng tông mới ra chiều sâu.
+- Mọi thứ bấm được phải có cả `:hover` lẫn `:active`. Thiếu trạng thái nhấn thì
+  giao diện bấm vào thấy "chết".
 - Phần tử bấm được phải là `<button type="button">` thật kèm `aria-label` mô tả
   trạng thái, không dùng `<div onClick>`. Thao tác chuột nào cũng phải có lối
   bàn phím tương đương.
@@ -127,6 +131,13 @@ viết sẵn từng cặp lá × vị trí: 22 × 10 đoạn văn thì vừa kh�
   hai lá cùng lúc.
 - Ảnh lá bài tham chiếu theo chỉ số: `DECK[3]` ↔ `public/assets/cards/03.jpg`.
   Chèn lá vào giữa mảng `DECK` là lệch hết ảnh — chỉ nối thêm vào cuối.
+- **`.app` có `overflow-x: clip`** để phần trang trí tràn ra (năm lá ở trang chủ,
+  hai lá rìa của quạt) không đẻ thanh cuộn ngang. Dùng `clip` chứ không `hidden`:
+  `hidden` biến `.app` thành vùng cuộn và làm hỏng `position: sticky` của thanh
+  đầu trang.
+- **`STACK_DROP` trong `CardFan` phải ≤ `--fan-spill` trong CSS.** Lá lúc xếp
+  chồng mà thấp hơn mức đó thì cả chồng thò khỏi khung quạt và trang nhá thanh
+  cuộn suốt hơn một giây đầu.
 - **`.shell` giữ lề ngang của cả app.** Lớp đi kèm nó (`.page`, `.hero`,
   `.shuffle`) phải dùng `padding-block`, không dùng shorthand `padding` — dùng
   shorthand là xoá lề và chữ chạm sát mép màn hình điện thoại.

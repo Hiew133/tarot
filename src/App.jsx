@@ -1,4 +1,5 @@
 import SiteHeader from './components/SiteHeader.jsx';
+import SiteFooter from './components/SiteFooter.jsx';
 import { CardBackProvider } from './lib/cardBack.jsx';
 import { useReading } from './lib/useReading.js';
 import HomeScreen from './screens/HomeScreen.jsx';
@@ -23,9 +24,26 @@ export default function App() {
   return (
     <CardBackProvider>
       <div className="app">
+        {/* Lối tắt cho người dùng bàn phím: Tab phát đầu tiên là nhảy thẳng vào
+            nội dung, khỏi phải đi qua cả thanh menu.
+
+            Tự chuyển focus thay vì để trình duyệt nhảy theo hash: app dùng
+            `location.hash` làm địa chỉ màn hình, đổi nó thành #noi-dung là
+            điều hướng lạc sang màn khác. */}
+        <a
+          className="skip-link"
+          href="#noi-dung"
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById('noi-dung')?.focus();
+          }}
+        >
+          Tới nội dung chính
+        </a>
+
         <SiteHeader current={navCurrent} resuming={r.active} onGo={r.go} />
 
-        <main className="main">
+        <main className="main" id="noi-dung" tabIndex={-1}>
           {r.screen === 'home' && (
             <HomeScreen
               onStart={() => r.go('spreads')}
@@ -90,6 +108,10 @@ export default function App() {
 
           {r.screen === 'about' && <AboutScreen />}
         </main>
+
+        {/* Bàn bài được tính để lọt đúng một màn hình; thêm chân trang vào đó là
+            đẻ ra thanh cuộn ngay. Các màn còn lại thì cuộn bình thường. */}
+        {r.screen !== 'reading' && <SiteFooter />}
       </div>
     </CardBackProvider>
   );
