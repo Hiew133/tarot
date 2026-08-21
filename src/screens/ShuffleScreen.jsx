@@ -6,8 +6,10 @@ const RIFFLE_N = 18;
  * Xào bài kiểu riffle: chồng bài tách làm hai nửa, hai nửa nghiêng ra rồi cài
  * răng lược vào nhau và rơi lại thành chồng. Mỗi lá lệch pha một chút nên nhìn
  * thành một dòng chảy liên tục thay vì cả chồng nhảy cùng lúc.
+ *
+ * Lần đầu thì đẹp, lần thứ mười thì mệt — nên luôn có lối bỏ qua.
  */
-export default function ShuffleScreen() {
+export default function ShuffleScreen({ onSkip }) {
   const cardBack = useCardBack();
 
   return (
@@ -28,6 +30,9 @@ export default function ShuffleScreen() {
         ))}
       </div>
       <p className="shuffle__label" role="status">Đang xào bài…</p>
+      <button type="button" className="btn--quiet shuffle__skip" onClick={onSkip}>
+        Bỏ qua, vào bàn ngay
+      </button>
     </div>
   );
 }

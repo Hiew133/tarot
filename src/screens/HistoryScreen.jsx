@@ -1,13 +1,46 @@
-export default function HistoryScreen({ history, onStart }) {
+import { useEffect, useState } from 'react';
+
+export default function HistoryScreen({ history, onStart, onClear }) {
+  // Xoá là không lấy lại được, nên hỏi lại một nhịp — nhưng bằng chính cái nút
+  // đó chứ không phải hộp thoại confirm() của trình duyệt.
+  const [confirming, setConfirming] = useState(false);
+
+  useEffect(() => {
+    if (!confirming) return undefined;
+    const t = setTimeout(() => setConfirming(false), 5000);
+    return () => clearTimeout(t);
+  }, [confirming]);
+
   return (
     <div className="shell page">
-      <div className="eyebrow">Riêng tư</div>
-      <h1 className="h2" style={{ marginTop: 14 }}>Nhật ký</h1>
-      <p className="lede">
-        {history.length
-          ? 'Lưu trên máy bạn, không gửi đi đâu cả.'
-          : 'Chưa có lượt trải nào ở đây.'}
-      </p>
+      <div className="log__head">
+        <div>
+          <div className="eyebrow">Riêng tư</div>
+          <h1 className="h2" style={{ marginTop: 14 }}>Nhật ký</h1>
+          <p className="lede">
+            {history.length
+              ? 'Lưu trên máy bạn, không gửi đi đâu cả.'
+              : 'Chưa có lượt trải nào ở đây.'}
+          </p>
+        </div>
+
+        {history.length > 0 && (
+          <button
+            type="button"
+            className={`btn btn--ghost${confirming ? ' btn--danger' : ''}`}
+            onClick={() => {
+              if (!confirming) {
+                setConfirming(true);
+                return;
+              }
+              setConfirming(false);
+              onClear();
+            }}
+          >
+            {confirming ? `Xoá hẳn ${history.length} lượt?` : 'Xoá nhật ký'}
+          </button>
+        )}
+      </div>
 
       {history.length === 0 ? (
         <div className="empty">

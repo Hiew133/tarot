@@ -10,7 +10,7 @@ import DetailScreen from './screens/DetailScreen.jsx';
 import HistoryScreen from './screens/HistoryScreen.jsx';
 import AboutScreen from './screens/AboutScreen.jsx';
 
-export default function App({ readerName = 'Linh Đan' }) {
+export default function App() {
   const r = useReading();
 
   const questionLine = r.question
@@ -23,7 +23,7 @@ export default function App({ readerName = 'Linh Đan' }) {
   return (
     <CardBackProvider>
       <div className="app">
-        <SiteHeader current={navCurrent} onGo={r.go} />
+        <SiteHeader current={navCurrent} resuming={r.active} onGo={r.go} />
 
         <main className="main">
           {r.screen === 'home' && (
@@ -46,7 +46,9 @@ export default function App({ readerName = 'Linh Đan' }) {
             />
           )}
 
-          {r.screen === 'reading' && r.phase === 'shuffle' && <ShuffleScreen />}
+          {r.screen === 'reading' && r.phase === 'shuffle' && (
+            <ShuffleScreen onSkip={r.skipShuffle} />
+          )}
 
           {r.screen === 'reading' && r.phase === 'draw' && (
             <DrawScreen
@@ -62,8 +64,8 @@ export default function App({ readerName = 'Linh Đan' }) {
               onPlace={r.placeCard}
               onFlip={r.flip}
               onOpenDetail={r.openDetail}
-              onReadResults={() => r.openDetail(0)}
-              onDone={() => r.go('home')}
+              onReadResults={() => r.openDetail(r.open[0] ?? 0)}
+              onDone={r.endReading}
             />
           )}
 
@@ -79,10 +81,14 @@ export default function App({ readerName = 'Linh Đan' }) {
           )}
 
           {r.screen === 'history' && (
-            <HistoryScreen history={r.history} onStart={() => r.go('spreads')} />
+            <HistoryScreen
+              history={r.history}
+              onStart={() => r.go('spreads')}
+              onClear={r.forgetHistory}
+            />
           )}
 
-          {r.screen === 'about' && <AboutScreen readerName={readerName} />}
+          {r.screen === 'about' && <AboutScreen />}
         </main>
       </div>
     </CardBackProvider>

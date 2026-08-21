@@ -239,6 +239,13 @@ body {
   padding: 8px;
 }
 .btn--quiet:hover { color: var(--rust); }
+/* Nút xoá đã hỏi lại một nhịp — lúc đó mới đỏ lên cho biết bấm nữa là mất thật. */
+.btn--danger {
+  background: var(--rust);
+  border-color: var(--rust);
+  color: var(--on-dark);
+}
+.btn--danger:hover { background: var(--rust-deep); border-color: var(--rust-deep); }
 
 .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
 
@@ -407,6 +414,8 @@ body {
   font-size: 22px;
   color: var(--on-dark-soft);
 }
+.shuffle__skip { color: var(--on-dark-faint); margin-top: -28px; }
+.shuffle__skip:hover { color: var(--gold-soft); }
 
 @keyframes riffle {
   0%, 8%   { transform: translate3d(0, calc(var(--lift) * -1px), 0) rotate(0deg); }
@@ -777,6 +786,15 @@ body {
 .offer:hover { border-color: var(--gold); }
 .offer__name { font-size: 16px; }
 .offer__meta { font-family: var(--font-mono); font-size: 13px; color: var(--gold); }
+
+.log__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.log__head .lede { margin-bottom: 0; }
 
 /* ── Vòng focus ────────────────────────────────────────── */
 

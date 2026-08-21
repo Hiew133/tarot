@@ -2,9 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { DECK } from '../data/deck.js';
 import { SPREADS } from '../data/spreads.js';
 import { shuffleDeck } from './deal.js';
-import { loadHistory, pushEntry, saveHistory, today } from './history.js';
+import { initialScreen, screenFromHash, syncHash } from './route.js';
+import { clearHistory, loadHistory, pushEntry, saveHistory, today } from './history.js';
 
-const SHUFFLE_MS = 2100;  // đủ cho hơn một vòng riffle
+const SHUFFLE_MS = 2100;         // đủ cho hơn một vòng riffle
+const DEFAULT_SPREAD = 'three';
 
 /**
  * Một lượt trải bài: chọn kiểu trải → đặt câu hỏi → xào → bốc và đặt → lật → đọc.
@@ -14,18 +16,21 @@ const SHUFFLE_MS = 2100;  // đủ cho hơn một vòng riffle
  * lấy từ chồng đã xào theo thứ tự, còn chỗ đặt là tuỳ họ.
  */
 export function useReading() {
-  const [screen, setScreen] = useState('home');
-  const [spreadKey, setSpreadKey] = useState('three');
+  const [screen, setScreen] = useState(initialScreen);
+  const [spreadKey, setSpreadKey] = useState(DEFAULT_SPREAD);
   const [question, setQuestion] = useState('');
   const [phase, setPhase] = useState('ask');
-  const [slots, setSlots] = useState(() => Array(SPREADS.three.pos.length).fill(null));
+  const [slots, setSlots] = useState(() => Array(SPREADS[DEFAULT_SPREAD].pos.length).fill(null));
   const [open, setOpen] = useState([]);
   const [detail, setDetail] = useState(0);
   const [history, setHistory] = useState([]);
   const [order, setOrder] = useState(shuffleDeck);
+  const [active, setActive] = useState(false);
 
   const shuffleTimer = useRef(null);
   const savedSignature = useRef(null);
+  const activeRef = useRef(false);
+  activeRef.current = active;
 
   const spread = SPREADS[spreadKey];
   const positions = spread.pos;
@@ -43,6 +48,23 @@ export function useReading() {
 
   const go = useCallback((next) => setScreen(next), []);
 
+  // Địa chỉ đi theo màn hình, để nút Back của trình duyệt còn có nghĩa.
+  useEffect(() => {
+    syncHash(screen);
+  }, [screen]);
+
+  useEffect(() => {
+    const onPop = () => {
+      // Một lượt trải không nằm trong URL, nên Back về bàn bài lúc không có
+      // lượt nào đang mở thì đưa người dùng về màn chọn kiểu trải.
+      const next = screenFromHash();
+      const stale = (next === 'reading' || next === 'detail') && !activeRef.current;
+      setScreen(stale ? 'spreads' : next);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
   const reset = useCallback((count) => {
     savedSignature.current = null;
     setSlots(Array(count).fill(null));
@@ -58,6 +80,7 @@ export function useReading() {
       setScreen('reading');
       setPhase('ask');
       setQuestion('');
+      setActive(true);
       reset(SPREADS[key].pos.length);
     },
     [reset]
@@ -76,6 +99,18 @@ export function useReading() {
     setQuestion('');
     startShuffle();
   }, [startShuffle]);
+
+  /** Vào bàn ngay, không xem hết hoạt cảnh xào bài. Bộ vẫn đã xào rồi. */
+  const skipShuffle = useCallback(() => {
+    clearTimeout(shuffleTimer.current);
+    setPhase('draw');
+  }, []);
+
+  /** Đóng lượt trải: bàn bài coi như dọn, thanh menu thôi mời quay lại. */
+  const endReading = useCallback(() => {
+    setActive(false);
+    setScreen('home');
+  }, []);
 
   /** Đặt lá kế tiếp trên chồng vào ô `position`. Ô đã có lá thì bỏ qua. */
   const placeCard = useCallback(
@@ -104,6 +139,12 @@ export function useReading() {
   const openDetail = useCallback((position) => {
     setDetail(position);
     setScreen('detail');
+  }, []);
+
+  /** Xoá sạch nhật ký, cả trên máy lẫn trong bộ nhớ. */
+  const forgetHistory = useCallback(() => {
+    clearHistory();
+    setHistory([]);
   }, []);
 
   // Lật đủ bộ thì tự ghi vào nhật ký — mỗi bàn bài chỉ ghi một lần.
@@ -148,6 +189,7 @@ export function useReading() {
     filled,
     open,
     history,
+    active,
     allOpen,
     lastOpen,
     detailIndex,
@@ -156,10 +198,13 @@ export function useReading() {
     chooseSpread,
     startShuffle,
     skipQuestion,
+    skipShuffle,
+    endReading,
     placeCard,
     flip,
     openDetail,
     setDetail,
+    forgetHistory,
   };
 }
 

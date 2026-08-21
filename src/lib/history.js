@@ -19,6 +19,15 @@ export function saveHistory(history) {
   }
 }
 
+/** Xoá sạch nhật ký khỏi máy. App hứa "lưu trên máy bạn" thì phải cho xoá. */
+export function clearHistory() {
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    // bị chặn — mảng rỗng trong bộ nhớ vẫn là thứ người dùng thấy.
+  }
+}
+
 export function pushEntry(history, entry) {
   return [entry, ...history].slice(0, MAX_ENTRIES);
 }
