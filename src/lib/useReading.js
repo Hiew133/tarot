@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DECK } from '../data/deck.js';
 import { SPREADS } from '../data/spreads.js';
-import { shuffleDeck } from './deal.js';
+import { placeAt, shuffleDeck } from './deal.js';
 import { initialScreen, screenFromHash, syncHash } from './route.js';
 import { clearHistory, loadHistory, pushEntry, saveHistory, today } from './history.js';
 
@@ -23,14 +23,12 @@ export function useReading() {
   const [slots, setSlots] = useState(() => Array(SPREADS[DEFAULT_SPREAD].pos.length).fill(null));
   const [open, setOpen] = useState([]);
   const [detail, setDetail] = useState(0);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState(loadHistory);
   const [order, setOrder] = useState(shuffleDeck);
   const [active, setActive] = useState(false);
 
   const shuffleTimer = useRef(null);
   const savedSignature = useRef(null);
-  const activeRef = useRef(false);
-  activeRef.current = active;
 
   const spread = SPREADS[spreadKey];
   const positions = spread.pos;
@@ -39,10 +37,6 @@ export function useReading() {
   // Bảo hiểm cho nhịp render ngay sau khi đổi kiểu trải.
   const board = slots.length === total ? slots : Array(total).fill(null);
   const filled = board.reduce((n, v) => (v === null ? n : n + 1), 0);
-
-  useEffect(() => {
-    setHistory(loadHistory());
-  }, []);
 
   useEffect(() => () => clearTimeout(shuffleTimer.current), []);
 
@@ -58,12 +52,12 @@ export function useReading() {
       // Một lượt trải không nằm trong URL, nên Back về bàn bài lúc không có
       // lượt nào đang mở thì đưa người dùng về màn chọn kiểu trải.
       const next = screenFromHash();
-      const stale = (next === 'reading' || next === 'detail') && !activeRef.current;
+      const stale = (next === 'reading' || next === 'detail') && !active;
       setScreen(stale ? 'spreads' : next);
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
-  }, []);
+  }, [active]);
 
   const reset = useCallback((count) => {
     savedSignature.current = null;
@@ -115,15 +109,7 @@ export function useReading() {
   /** Đặt lá kế tiếp trên chồng vào ô `position`. Ô đã có lá thì bỏ qua. */
   const placeCard = useCallback(
     (position) => {
-      setSlots((prev) => {
-        if (prev.length !== total) return prev;
-        if (position < 0 || position >= total || prev[position] !== null) return prev;
-        const count = prev.reduce((n, v) => (v === null ? n : n + 1), 0);
-        if (count >= order.length) return prev;
-        const next = [...prev];
-        next[position] = order[count];
-        return next;
-      });
+      setSlots((prev) => (prev.length === total ? placeAt(prev, position, order) : prev));
     },
     [order, total]
   );

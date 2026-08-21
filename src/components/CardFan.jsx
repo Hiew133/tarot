@@ -55,16 +55,18 @@ export default function CardFan({ taken, grabbed, disabled, onPickUp, onQuickPic
     };
   }, []);
 
-  // Lá đang giữ chỗ Tab mà vừa bị rút mất thì chuyển sang lá còn rút được.
-  useEffect(() => {
-    if (disabled || canTake(focusIndex)) return;
+  // Chỗ dừng Tab của cả quạt. Tính ra chứ không giữ trong state: lá đang giữ
+  // chỗ có thể vừa bị rút mất, và khi đó chỗ dừng phải nhảy sang lá còn lại
+  // ngay trong cùng một lần render.
+  let tabStop = canTake(focusIndex) ? focusIndex : -1;
+  if (tabStop < 0) {
     for (let i = 0; i < FAN_N; i++) {
       if (canTake(i)) {
-        setFocusIndex(i);
-        return;
+        tabStop = i;
+        break;
       }
     }
-  }, [disabled, taken, grabbed, focusIndex]);
+  }
 
   const geometry = (i) => {
     const half = (FAN_N - 1) / 2;
@@ -168,7 +170,7 @@ export default function CardFan({ taken, grabbed, disabled, onPickUp, onQuickPic
             ref={(el) => { cardsRef.current[i] = el; }}
             className={`fan__card${live ? ' fan__card--live' : ''}`}
             aria-label={`Lá úp thứ ${i + 1}`}
-            tabIndex={i === focusIndex ? 0 : -1}
+            tabIndex={i === tabStop ? 0 : -1}
             disabled={!live}
             onPointerDown={handleDown(i)}
             onKeyDown={handleKey(i)}

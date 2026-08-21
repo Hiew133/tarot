@@ -15,3 +15,21 @@ export function shuffleDeck() {
   }
   return order;
 }
+
+/**
+ * Bàn bài sau khi đặt lá kế tiếp trên chồng vào ô `position`.
+ *
+ * Ô ngoài phạm vi, ô đã có lá, hoặc chồng đã hết bài thì trả về đúng bàn cũ —
+ * người gọi so sánh tham chiếu là biết có đặt được hay không.
+ *
+ * Lá lấy theo **số ô đã lấp** chứ không theo `position`: người chơi được chọn
+ * đặt vào ô nào tuỳ ý, còn thứ tự lấy lá thì vẫn là thứ tự trên chồng.
+ */
+export function placeAt(board, position, order) {
+  if (position < 0 || position >= board.length || board[position] !== null) return board;
+  const count = board.reduce((n, v) => (v === null ? n : n + 1), 0);
+  if (count >= order.length) return board;
+  const next = [...board];
+  next[position] = order[count];
+  return next;
+}

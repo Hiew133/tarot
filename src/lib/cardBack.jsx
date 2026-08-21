@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { asset } from './assets.js';
 
-const PNG = '/assets/card-back.png';
-const SVG = '/assets/card-back.svg';
+const PNG = asset('assets/card-back.png');
+const SVG = asset('assets/card-back.svg');
 
 /** Bề ngang lá bài trong quạt — mốc để tính tỉ lệ khi bay vào ô. */
 export const FAN_CARD_W = 78;

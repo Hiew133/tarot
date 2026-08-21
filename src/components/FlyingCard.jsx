@@ -14,8 +14,12 @@ const AUTO_MS = 1050;  // bấm một cái: lá tự bốc lên rồi bay sang �
 export default function FlyingCard({ from, stage, to, onDone }) {
   const cardBack = useCardBack();
   const ref = useRef(null);
+  // Ôm callback mới nhất trong ref: onDone đổi định danh mỗi lần render, mà
+  // animation thì không được dựng lại chỉ vì thế.
   const done = useRef(onDone);
-  done.current = onDone;
+  useEffect(() => {
+    done.current = onDone;
+  });
 
   useEffect(() => {
     const el = ref.current;

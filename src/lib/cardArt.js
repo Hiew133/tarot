@@ -1,3 +1,5 @@
+import { asset } from './assets.js';
+
 /**
  * Ảnh mặt lá bài — bản scan Rider–Waite–Smith 1909 (hết hạn bản quyền),
  * tải từ Wikimedia Commons về `public/assets/cards/`. Tên file theo đúng chỉ số
@@ -6,5 +8,5 @@
  * Xem `public/assets/cards/NOTICE.txt` để biết nguồn và giấy phép.
  */
 export function cardArt(deckIndex) {
-  return `/assets/cards/${String(deckIndex).padStart(2, '0')}.jpg`;
+  return asset(`assets/cards/${String(deckIndex).padStart(2, '0')}.jpg`);
 }

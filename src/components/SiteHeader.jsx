@@ -1,3 +1,5 @@
+import { asset } from '../lib/assets.js';
+
 const NAV = [
   { key: 'spreads', label: 'Trải bài' },
   { key: 'history', label: 'Nhật ký' },
@@ -16,7 +18,7 @@ export default function SiteHeader({ current, resuming, onGo }) {
     <header className="header">
       <div className="shell header__inner">
         <button type="button" className="brand" onClick={() => onGo('home')}>
-          <img src="/assets/logo.svg" alt="" width="34" height="34" />
+          <img src={asset('assets/logo.svg')} alt="" width="34" height="34" />
           <span>
             <span className="brand__name">Tarot</span>
             <span className="brand__tag">Ngồi xuống, rút một lá</span>

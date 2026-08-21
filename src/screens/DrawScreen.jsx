@@ -72,10 +72,8 @@ export default function DrawScreen({
   const total = positions.length;
   const done = filled >= total;
 
-  // Lượt mới thì trả lại đủ bài cho quạt.
-  useEffect(() => {
-    if (filled === 0) setTaken(new Set());
-  }, [filled]);
+  // Không cần dọn `taken` khi sang lượt mới: mọi đường vào lượt mới đều đi qua
+  // pha ask hoặc shuffle, mà lúc đó App gỡ hẳn DrawScreen — state tự mất theo.
 
   const land = useCallback(
     (position, from) => {
