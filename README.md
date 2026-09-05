@@ -1,12 +1,54 @@
-# Tarot
+<h1 align="center">Tarot</h1>
 
-**→ [hiew133.github.io/tarot](https://hiew133.github.io/tarot/)**
+<p align="center">
+  Bàn trải bài tarot chạy trong trình duyệt — xào bài thật,<br/>
+  kéo thả từng lá vào ô bằng chuột, và đọc được bằng bàn phím.
+</p>
 
-Web app trải bài tarot — dựng từ bản thiết kế `Tarot App.dc.html` trong
+<p align="center">
+  <b>→ <a href="https://hiew133.github.io/tarot/">hiew133.github.io/tarot</a></b>
+</p>
+
+<p align="center">
+  <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" />
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white" />
+  <img alt="Vitest" src="https://img.shields.io/badge/Vitest-6E9F18?logo=vitest&logoColor=white" />
+  <img alt="No backend" src="https://img.shields.io/badge/backend-không%20có-informational" />
+  <img alt="GitHub Pages" src="https://img.shields.io/badge/deploy-GitHub%20Pages-222222?logo=githubpages&logoColor=white" />
+</p>
+
+---
+
+## Đây là gì
+
+Một web app trải bài tarot **không có backend, không có API, không có database**.
+Mọi thứ nằm trong một bundle tĩnh; nhật ký trải bài lưu ở `localStorage` của
+chính bạn và không gửi đi đâu cả.
+
+Dependency runtime vừa đúng **hai** gói: `react` và `react-dom`. Không router,
+không state library, không UI kit, không thư viện animation — toàn bộ định tuyến
+theo hash, ba animation phức tạp và ~830 dòng CSS đều viết tay.
+
+## Đáng xem
+
+- **Xào bài có hình** — 18 lá tách hai nửa, nghiêng ra, cài răng lược rồi rơi lại
+  thành chồng. Cả bộ được xào **một lần** (Fisher–Yates), mỗi lần rút lấy lá kế
+  tiếp trên chồng — không random lại giữa chừng.
+- **Quạt bài 30 lá** xoè thành vòng cung, vị trí từng lá tính từ tham số u ∈ [−1, 1]:
+  lệch ngang theo `u`, võng xuống theo `u²`, nghiêng theo `u`.
+- **Kéo thả thật** — lá bám theo con trỏ, ô thả được sáng viền vàng, bạn **tự chọn ô**
+  chứ không bị bắt đặt theo thứ tự.
+- **Chơi được bằng bàn phím** — cả 30 lá chỉ chiếm một điểm dừng Tab, mũi tên chạy
+  dọc quạt, Enter/Space rút lá. Tôn trọng `prefers-reduced-motion`.
+- **Vị trí hỏi, lá trả lời** — mỗi vị trí trong bộ trải mang một câu hỏi riêng
+  (`lens`), nên cùng một lá đọc ở "Quá khứ" và ở "Nên tránh" ra hai chuyện khác
+  nhau — không phải viết sẵn 220 đoạn văn.
+
+4 kiểu trải · 22 lá Ẩn Chính, mỗi lá có nghĩa xuôi lẫn nghĩa ngược · nhật ký 20 lượt gần nhất.
+
+<sub>Dựng từ bản thiết kế `Tarot App.dc.html` trong
 [Claude Design project](https://claude.ai/design/p/2b57b5a4-035d-4b9a-934d-efb6377fd7f4?file=Tarot+App.dc.html),
-sau đó làm lại giao diện theo hướng web.
-
-React + Vite, không có backend. Nhật ký lưu trong `localStorage`, không gửi đi đâu.
+sau đó làm lại giao diện theo hướng web.</sub>
 
 ## Chạy
 
